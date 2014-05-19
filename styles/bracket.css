@@ -1,0 +1,28 @@
+div.ngBracket{font-family:Calibri;font-size:18px;position:relative;float:left;margin-top:20px}
+div.ngBracket #bracketRoot{clear:right;}
+div.ngBracket .round{position:relative;width:240px;height:100%;float:left}
+div.ngBracket .roundTitle{display:table;margin:0 auto;}
+/* header's max-height is required */
+div.ngBracket .roundHeader{margin-bottom:20px;max-height:20px}
+/* Note! min-width and min-height are required. If you want to change team container size, remember to set min-height to match 2*team-height! */
+div.ngBracket .match{position:absolute;width:200px;min-width:200px;max-width;margin-bottom:20px;margin-right:40px;border-width:2px;border-style:solid;min-height:50px;max-height:50px;overflow:hidden;}
+div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1}
+div.ngBracket .team{height:25px}
+div.ngBracket .empty{background-color:#eee}
+div.ngBracket .team span{margin-left:10px;}
+div.ngBracket .team img{float:left;width:20px;height:19px;clear:both;}
+div.ngBracket .score{float:right;font-weight:bold;background-color:#efefef;text-align:center;vertical-align:middle;line-height:23px;width:30px;height:100%;font-size:19px;}
+input.score{float:right;font-weight:bold;text-align:center;vertical-align:middle;line-height:20px;max-width:25px;max-height:20px;border:1}
+input[type='number'] {-moz-appearance:textfield;}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {-webkit-appearance: none;}
+
+div.ngBracket .flag{background:center center no-repeat;background-size:cover;float:left;width:30px;height:25px;border:0px solid red;text-indent:-9999px;}
+
+/* Connector styles */
+div.ngBracket .connectors{border-color:#000;z-index:1}
+div.ngBracket .connector{position:absolute}
+div.ngBracket .connectors .tbdB{border-color:#f1f1f1;z-index:-1;position:absolute}
+div.ngBracket .connectorBottom{border-bottom:2px solid}
+div.ngBracket .connectorLeft{border-left:2px solid}
+div.ngBracket .connectorTop{border-top:2px solid}

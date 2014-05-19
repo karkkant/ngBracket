@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- scripts -->
+	<script type="text/javascript" src="scripts/angular.min.js"></script>
+	<script type="text/javascript" src="scripts/services.js"></script>
+	<script type="text/javascript" src="scripts/match.js"></script>
+	<script type="text/javascript" src="scripts/app.js"></script>
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="styles/bracket.css">
+</head>
+<body ng-app="ngBracket" ng-controller="bracketController">
+	<span>Flag is optional. Supported choices for the demo: aut, can, chi, cze, den, est, fin, fra, ger, rus, sui, swe, uk, usa</span><br/><br/>
+	<span>Name:</span><input type="text" ng-model="newPlayerName"></input>
+	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"></input>
+	<button ng-click="addPlayer()">Add</button>
+	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button><br/>
+	<!-- Matches have absolute positions, so we need to calculate the wrapper size by hand :( -->
+	<div ng-cloak class="ngBracket" id="bracketRoot"
+		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
+	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
+		<div ng-repeat="m in tournamentData.matches" class="round" id="round-{{$index+1}}" >
+			<div class="roundHeader">
+				<span class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+			</div>
+			<div ng-repeat="match in m" id="{{match.meta.matchId}}">
+				<match></match>
+				<connectors></connectors>				
+			</div>
+		</div>
+	</div>
+	<br/>
+	<div style="float:left">
+		<span><h2>Debug</h2></span>
+		<span><h3>tournamentData:</h3> {{ tournamentData }}</span>
+		<span><h3>players:</h3> {{ participants }}</span>
+	</div>
+</body>
+</html>
