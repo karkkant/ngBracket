@@ -11,7 +11,8 @@
 	<span>Name:</span><input type="text" ng-model="newPlayerName"></input>
 	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"></input>
 	<button ng-click="addPlayer()">Add</button>
-	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button><br/>
+	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
+	<button ng-click="loadTournament()">Load sample</button><br/>
 	<div ng-cloak class="ngBracket" id="bracketRoot"
 		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
 	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">

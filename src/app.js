@@ -43,9 +43,9 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 		}
 	};
 
-	$scope.loadTournament = function(tData){
-		data.setTournament(tData);
-		$scope.tournamentData = tData;
+	$scope.loadTournament = function(){
+		$scope.tournamentData = data.loadTournament();
+		$scope.participants = data.getParticipants();
 	};
 
 	$scope.newTournament = function(){
@@ -220,7 +220,6 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 
 		if($scope.participants.length < 3){
 			return;
-			//Todo prompt
 		}
 
 		// Clear the table
