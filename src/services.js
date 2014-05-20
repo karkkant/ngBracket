@@ -21,7 +21,7 @@ myApp.filter('getById', function() {
 			}
 		}
 		return null;
-	}
+	};
 });
 
 /**
@@ -93,7 +93,7 @@ myApp.factory('connectorService', ['data', function(data){
 			var root = null;
 			var current = element;
 			//find root of all matches
-			while(current.parent() != null && current.parent().length > 0){
+			while(current.parent() !== null && current.parent().length > 0){
 				current = current.parent();
 				if(current.attr('id') === "bracketRoot"){
 					root = current;

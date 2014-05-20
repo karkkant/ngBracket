@@ -33,7 +33,7 @@ myApp.directive('score',['data', function(data){
 				if(scope.match.team1.id && scope.match.team2.id){
 					scope.status = 'editable';
 				}
-			}
+			};
 			scope.calculateResults = function(){
 				if(typeof(scope.match.team1.score) === 'undefined' || scope.match.team1.score === "" || typeof(scope.match.team2.score) === 'undefined' ||
 					scope.match.team2.score === "" || scope.match.team1.score === scope.match.team2.score){
@@ -41,14 +41,14 @@ myApp.directive('score',['data', function(data){
 				}
 				var winnerId = scope.match.team1.score > scope.match.team2.score ? scope.match.team1.id : scope.match.team2.id;
 				data.updateTournament(scope.match.meta.matchId, winnerId, scope.$parent);
-			}			
+			};
 			scope.endEditScore = function(team){
 				scope.status = 'uneditable';
 				scope.calculateResults();
-			}
+			};
 		},
 		replace: true
-	}
+	};
 }]);
 
 /**
@@ -66,12 +66,12 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 		link: function(scope, el, attrs){
 			scope.getTeamDetails = function(teamId){
 				return $filter('getById')(data.getParticipants(), teamId);
-			}
+			};
 			scope.endEditScore = function(){
 				if(match.team1.score && match.team2.score){
 					var winner = 1;
 				}
-			}
+			};
 
 			scope.team1Details = scope.getTeamDetails(scope.match.team1.id);
 			scope.team2Details = scope.getTeamDetails(scope.match.team2.id);
@@ -117,7 +117,7 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 			}
 			el.css("top", top + "px");
 		}
-	}
+	};
 }]);
 
 /**
@@ -132,7 +132,7 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 		link: function (scope, el, attrs) {
 			// Creates connector div. Classes (borders) must be assigned separately.
 			function createConnector(width, height, posX, posY, team){
-				var c = team == null ? '' : (team == 1 ? 'ng-class="{tbdB:match.team1.id.length == 0}"' : 'ng-class="{tbdB:match.team2.id.length == 0}"');
+				var c = team === null ? '' : (team == 1 ? 'ng-class="{tbdB:match.team1.id.length == 0}"' : 'ng-class="{tbdB:match.team2.id.length == 0}"');
 				return angular.element($compile('<div class="connector" style="left:' + posX +'px;top:'+ posY +'px;width:'+ width + 'px;height:' + height + 'px" ' + c +'></div>')(scope));
 			}
 
@@ -189,5 +189,5 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 				el.append(createConnector(width, 1, posX, posY, 2).addClass("connectorTop"));
 			}
 		}
-	}
+	};
 }]);

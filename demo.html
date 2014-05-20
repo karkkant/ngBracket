@@ -2,12 +2,8 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<!-- scripts -->
-	<script type="text/javascript" src="scripts/angular.min.js"></script>
-	<script type="text/javascript" src="scripts/services.js"></script>
-	<script type="text/javascript" src="scripts/match.js"></script>
-	<script type="text/javascript" src="scripts/app.js"></script>
-	<!-- Stylesheets -->
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
+	<script type="text/javascript" src="dist/ngBracket.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="styles/bracket.css">
 </head>
 <body ng-app="ngBracket" ng-controller="bracketController">
@@ -16,7 +12,6 @@
 	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"></input>
 	<button ng-click="addPlayer()">Add</button>
 	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button><br/>
-	<!-- Matches have absolute positions, so we need to calculate the wrapper size by hand :( -->
 	<div ng-cloak class="ngBracket" id="bracketRoot"
 		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
 	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
