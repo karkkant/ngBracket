@@ -34,18 +34,28 @@ myApp.directive('score',['data', function(data){
 					scope.status = 'editable';
 				}
 			};
-			scope.calculateResults = function(){
+			scope.calculateResults = function(oldValue){
 				if(typeof(scope.match.team1.score) === 'undefined' || scope.match.team1.score === "" || typeof(scope.match.team2.score) === 'undefined' ||
 					scope.match.team2.score === "" || scope.match.team1.score === scope.match.team2.score){
 					return;
 				}
 				var winnerId = scope.match.team1.score > scope.match.team2.score ? scope.match.team1.id : scope.match.team2.id;
-				data.updateTournament(scope.match.meta.matchId, winnerId, scope.$parent);
+				data.updateTournament(scope.match, winnerId, oldValue);
 			};
 			scope.endEditScore = function(team){
 				scope.status = 'uneditable';
-				scope.calculateResults();
+				scope.calculateResults(null);
 			};
+			scope.$watch('match.team1.id', function(newValue, oldValue) {
+				if (newValue){
+					scope.calculateResults(oldValue);
+				}
+			}, true);
+			scope.$watch('match.team2.id', function(newValue, oldValue) {
+				if (newValue){
+					scope.calculateResults(oldValue);
+				}
+			}, true);
 		},
 		replace: true
 	};

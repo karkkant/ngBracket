@@ -44,10 +44,10 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 		setTournament: function(tData){
 			tournamentData = tData;
 		},
-		updateTournament: function(matchId, winnerId, scopeToUpdate){
-			var b = matchId.split('-');
+		updateTournament: function(match, winnerId, oldValue){
+			var b = match.meta.matchId.split('-');
 			var round = parseInt(b[1]);
-			var match = parseInt(b[2]);
+			var matchIndex = parseInt(b[2]);
 
 			if(round === tournamentData.matches.length){
 				return;
@@ -59,12 +59,27 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 			for(var i=0; i<nextRound.length;i++){
 				if(nextRound[i].meta.matchType != 2){
 					connectingMatchIndex += (nextRound[i].meta.matchType == 1) ? 1 : 2;
-					if(connectingMatchIndex >= match){
-						if(connectingMatchIndex > match && (!nextRound[i].team1.id || 0 === nextRound[i].id.length)){
+					if(connectingMatchIndex >= matchIndex){
+						// Check if winner has already been set from this match.
+						var t = [match.team1.id, match.team2.id];
+						if(oldValue !== null && oldValue.length > 0){
+							t.push(oldValue);
+						}
+
+						if(t.indexOf(nextRound[i].team1.id) !== -1){
 							nextRound[i].team1.id = winnerId;
 						}
-						else{
+						else if(t.indexOf(nextRound[i].team2.id) !== -1){
 							nextRound[i].team2.id = winnerId;
+						}
+						else{
+							// normal case
+							if(connectingMatchIndex > matchIndex && (!nextRound[i].team1.id || 0 === nextRound[i].team1.id.length)){
+								nextRound[i].team1.id = winnerId;
+							}
+							else{
+								nextRound[i].team2.id = winnerId;
+							}							
 						}
 						break;
 					}
