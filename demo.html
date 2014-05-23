@@ -20,7 +20,7 @@
 			<div class="roundHeader">
 				<span class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
 			</div>
-			<div ng-repeat="match in m" id="{{match.meta.matchId}}">
+			<div class="matchWrapper" ng-repeat="match in m" id="{{match.meta.matchId}}">
 				<match></match>
 				<connectors></connectors>				
 			</div>

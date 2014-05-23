@@ -7,7 +7,7 @@
 * Match types: 1 = Match where one player is promoted from round1 to round2. That is, instead of 2, there is 3 players fighting over one slot.
 * 			   2 = A full round 1 match promoted to round 2.
 */
-angular.module('ngBracket').controller('bracketController', ['$scope', '$window', 'positioningService', 'data', function($scope, $window, positioningService, data){
+angular.module('ngBracket').controller('bracketController', ['$scope', '$window', 'positioningService', 'data', 'highlight', function($scope, $window, positioningService, data, highlight){
 
 	$scope.participants = [];
 
@@ -15,6 +15,8 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 	type: "SE",
 	matches: []
 	};
+
+	$scope.highlight = highlight.mapHighlight();
 
 	$scope.calculateRoundHeight = function(){
 		var height = 0;
@@ -39,7 +41,7 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 
 	$scope.addPlayer = function(){
 		if($scope.newPlayerName){
-			$scope.participants.push({name:$scope.newPlayerName, id: ($scope.participants.length + 1).toString(), flag:'/countries/' + $scope.newPlayerFlag, members:[]});
+			$scope.participants.push({name:$scope.newPlayerName, id: ($scope.participants.length + 1).toString(), flag:'countries/' + $scope.newPlayerFlag, members:[]});
 		}
 	};
 

@@ -24,6 +24,18 @@ myApp.filter('getById', function() {
 	};
 });
 
+myApp.factory('highlight', function(){
+	var highlight = { teamId:null };
+	return {
+		mapHighlight: function(){
+			return highlight;
+		},
+		setHighlight: function(teamId){
+			highlight.teamId = (teamId && teamId.length > 0) ? teamId : null;
+		}
+	};
+});
+
 /**
 * Contains all the necessary data that controllers need.
 * Returns copy of data when requested.
@@ -88,7 +100,7 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 		},
 		loadTournament: function(){
 			// Dummy data untill there's a service to fetch data from db.
-			var teamsData = JSON.parse('[{"name":"Austria","id":"1","flag":"/countries/aut","members":[]},{"name":"Czech","id":"2","flag":"/countries/cze","members":[]},{"name":"France","id":"3","flag":"/countries/fra","members":[]},{"name":"Switzerland","id":"4","flag":"/countries/sui","members":[]},{"name":"United States","id":"5","flag":"/countries/usa","members":[]},{"name":"Sweden","id":"6","flag":"/countries/swe","members":[]},{"name":"Finland","id":"7","flag":"/countries/fin","members":[]},{"name":"Germany","id":"8","flag":"/countries/ger","members":[]},{"name":"Russia","id":"9","flag":"/countries/rus","members":[]},{"name":"Canada","id":"10","flag":"/countries/can","members":[]},{"name":"United Kingdom","id":"11","flag":"/countries/uk","members":[]},{"name":"China","id":"12","flag":"/countries/chi","members":[]},{"name":"Denmark","id":"13","flag":"/countries/den","members":[]}]');
+			var teamsData = JSON.parse('[{"name":"Austria","id":"1","flag":"countries/aut","members":[]},{"name":"Czech","id":"2","flag":"countries/cze","members":[]},{"name":"France","id":"3","flag":"countries/fra","members":[]},{"name":"Switzerland","id":"4","flag":"countries/sui","members":[]},{"name":"United States","id":"5","flag":"countries/usa","members":[]},{"name":"Sweden","id":"6","flag":"countries/swe","members":[]},{"name":"Finland","id":"7","flag":"countries/fin","members":[]},{"name":"Germany","id":"8","flag":"countries/ger","members":[]},{"name":"Russia","id":"9","flag":"countries/rus","members":[]},{"name":"Canada","id":"10","flag":"countries/can","members":[]},{"name":"United Kingdom","id":"11","flag":"countries/uk","members":[]},{"name":"China","id":"12","flag":"countries/chi","members":[]},{"name":"Denmark","id":"13","flag":"countries/den","members":[]}]');
 			var tData = JSON.parse('{"type":"SE","matches":[[{"team1":{"id":"1","score":""},"team2":{"id":"2","score":""},"meta":{"matchId":"match-1-1"},"details":{}},{"team1":{"id":"3","score":4},"team2":{"id":"4","score":2},"meta":{"matchId":"match-1-2"},"details":{}},{"team1":{"id":"5","score":""},"team2":{"id":"6","score":""},"meta":{"matchId":"match-1-3"},"details":{}},{"team1":{"id":"7","score":""},"team2":{"id":"8","score":""},"meta":{"matchId":"match-1-4"},"details":{}},{"team1":{"id":"9","score":3},"team2":{"id":"10","score":4},"meta":{"matchId":"match-1-5"},"details":{}}],[{"team1":{"id":"11","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-2-1","matchType":1},"details":{}},{"team1":{"id":"12","score":""},"team2":{"id":"3","score":""},"meta":{"matchId":"match-2-2","matchType":1},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-2-3"},"details":{}},{"team1":{"id":"13","score":0},"team2":{"id":"10","score":2},"meta":{"matchId":"match-2-4","matchType":1},"details":{}}],[{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-3-1"},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"10","score":""},"meta":{"matchId":"match-3-2"},"details":{}}],[{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-4-1"},"details":{}}]]}');
 			
 			this.setParticipants(teamsData);

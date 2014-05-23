@@ -64,23 +64,21 @@ myApp.directive('score',['data', function(data){
 /**
  * Creates match element and calculates it's position dynamically, based on the parent matches.
  */
-myApp.directive('match', ['connectorService', 'positioningService', 'data', '$filter', function(connectorService, positioningService, data, $filter){
+myApp.directive('match', ['connectorService', 'positioningService', 'data', '$filter', 'highlight', function(connectorService, positioningService, data, $filter, highlight){
 	return {
 		restrict: "E",
 		scope: false,
 		template: '<div class="match" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length))}">'+
-						'<div class="team" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length)}"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div><span>{{ team1Details.name }}</span><score team="match.team1" match="match"></score></div>'+
-						'<div class="team" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length)}"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div><span>{{ team2Details.name }}</span><score team="match.team2" match="match"></score></div>'+
+						'<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length), separator: (team1Details.id.length > 0 && team2Details.id.length > 0), highlight: highlight.teamId === team1Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div></div><span>{{ team1Details.name }}</span><score team="match.team1" match="match"></score></div>'+
+						'<div class="team" ng-mouseenter="highlightTrack(team2Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length), highlight: highlight.teamId === team2Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div></div><span>{{ team2Details.name }}</span><score team="match.team2" match="match"></score></div>'+
 					'</div>',
 		replace: true,
 		link: function(scope, el, attrs){
 			scope.getTeamDetails = function(teamId){
 				return $filter('getById')(data.getParticipants(), teamId);
 			};
-			scope.endEditScore = function(){
-				if(match.team1.score && match.team2.score){
-					var winner = 1;
-				}
+			scope.highlightTrack = function(teamId){
+				highlight.setHighlight(teamId);
 			};
 
 			scope.team1Details = scope.getTeamDetails(scope.match.team1.id);
@@ -142,7 +140,10 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 		link: function (scope, el, attrs) {
 			// Creates connector div. Classes (borders) must be assigned separately.
 			function createConnector(width, height, posX, posY, team){
-				var c = team === null ? '' : (team == 1 ? 'ng-class="{tbdB:match.team1.id.length == 0}"' : 'ng-class="{tbdB:match.team2.id.length == 0}"');
+				var cmatch = team === null ? 'cMatch1' : 'cMatch' + team.toString();
+				var sc = team === null ? '' : (team == 1 ? 'tbdB:match.team1.id.length == 0' : 'tbdB:match.team2.id.length == 0');
+				var hlc = 'highlight: highlight.teamId !== null && ((match.team1.id === highlight.teamId || match.team2.id === highlight.teamId) && (' + cmatch + '.team1.id === highlight.teamId || ' + cmatch + '.team2.id === highlight.teamId))';
+				var c = 'ng-class="{'+ sc + (sc.length > 0 ? ', ' : '') + hlc +'}"';
 				return angular.element($compile('<div class="connector" style="left:' + posX +'px;top:'+ posY +'px;width:'+ width + 'px;height:' + height + 'px" ' + c +'></div>')(scope));
 			}
 
@@ -158,6 +159,8 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 				var thisMatch = connectorService.findChildMatch(el.parent());
 
 				var connectingMatch = angular.element(connectorService.findConnectingMatch(scope, el)[0].firstElementChild);
+				scope.cMatch1 = connectingMatch.scope().match;
+
 				// Connector endpoint
 				var horizontalBase = thisMatch.prop('offsetLeft');
 				var verticalBase = thisMatch.prop('offsetTop') + (properties.matchHeight / 2);
@@ -184,6 +187,7 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 				var prevId = connectingMatch.scope().match.meta.matchId.split('-');
 				var newId = prevId[0] + '-' + prevId[1] + '-' + (parseInt(prevId[2]) + 1);
 				var connectingMatch2 = angular.element(connectorService.findChildMatch(document.getElementById(newId)));
+				scope.cMatch2 = connectingMatch2.scope().match;
 
 				width = properties.matchMarginH / 2;
 				height = (connectingMatch2.prop('offsetTop') + (properties.matchHeight/2)) - verticalBase;
