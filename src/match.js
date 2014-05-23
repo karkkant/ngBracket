@@ -23,7 +23,8 @@ myApp.directive('score',['data', function(data){
 		restrict: "E",
 		scope: {
 			team: "=",
-			match: "="
+			match: "=",
+			results: "="
 		},
 		template: '<div class="score" ng-click="editScore(team)" ng-init="status=\'uneditable\'" ng-switch="status">'+
 					'<input class="score" ng-switch-when="editable" ng-blur="endEditScore(team)" do-focus="" type="number" ng-model="team.score" ng-pattern="/^[0-9]+$/"></input>'+
@@ -37,9 +38,22 @@ myApp.directive('score',['data', function(data){
 			scope.calculateResults = function(oldValue){
 				if(typeof(scope.match.team1.score) === 'undefined' || scope.match.team1.score === "" || typeof(scope.match.team2.score) === 'undefined' ||
 					scope.match.team2.score === "" || scope.match.team1.score === scope.match.team2.score){
+					scope.results.winner = "";
+					scope.results.loser = "";
 					return;
 				}
-				var winnerId = scope.match.team1.score > scope.match.team2.score ? scope.match.team1.id : scope.match.team2.id;
+
+				var winnerId;
+				if(scope.match.team1.score > scope.match.team2.score){
+					winnerId = scope.match.team1.id;
+					scope.results.loser = scope.match.team2.id;
+				}
+				else{
+					winnerId = scope.match.team2.id;
+					scope.results.loser = scope.match.team1.id;
+				}
+
+				scope.results.winner = winnerId;
 				data.updateTournament(scope.match, winnerId, oldValue);
 			};
 			scope.endEditScore = function(team){
@@ -68,9 +82,9 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 	return {
 		restrict: "E",
 		scope: false,
-		template: '<div class="match" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length))}">'+
-						'<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length), separator: (team1Details.id.length > 0 && team2Details.id.length > 0), highlight: highlight.teamId === team1Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div></div><span>{{ team1Details.name }}</span><score team="match.team1" match="match"></score></div>'+
-						'<div class="team" ng-mouseenter="highlightTrack(team2Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length), highlight: highlight.teamId === team2Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div></div><span>{{ team2Details.name }}</span><score team="match.team2" match="match"></score></div>'+
+		template: '<div class="match" ng-init="results={winner:\'\', loser:\'\'}" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length))}">'+
+						'<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length), separator: (team1Details.id.length > 0 && team2Details.id.length > 0), highlight: highlight.teamId === team1Details.id, loser: results.loser.length > 0 && results.loser == team1Details.id, winner: results.winner.length > 0 && results.winner == team1Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div></div><span>{{ team1Details.name }}</span><score team="match.team1" match="match" results="results"></score></div>'+
+						'<div class="team" ng-mouseenter="highlightTrack(team2Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length), highlight: highlight.teamId === team2Details.id, loser: results.loser.length > 0 && results.loser == team2Details.id, winner: results.winner.length > 0 && results.winner == team2Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div></div><span>{{ team2Details.name }}</span><score team="match.team2" match="match" results="results"></score></div>'+
 					'</div>',
 		replace: true,
 		link: function(scope, el, attrs){

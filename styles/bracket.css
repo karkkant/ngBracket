@@ -9,6 +9,9 @@ div.ngBracket .match{position:absolute;width:200px;min-width:200px;max-width;mar
 div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1}
 div.ngBracket .team{height:25px;overflow:hidden}
 div.ngBracket .empty{background-color:#eee}
+div.ngBracket .loser{background-color:#d3d3d3;color:#b2b2b2;}
+div.ngBracket .loser .score{color:#B22222}
+div.ngBracket .winner{}
 div.ngBracket .team span{margin-left:10px;}
 div.ngBracket .team img{float:left;width:20px;height:19px;clear:both;}
 div.ngBracket .highlight{background-color:#eea}
