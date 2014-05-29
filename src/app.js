@@ -39,12 +39,29 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 		return width;
 	};
 
+	// For demo page, can be removed
 	$scope.addPlayer = function(){
 		if($scope.newPlayerName){
 			$scope.participants.push({name:$scope.newPlayerName, id: ($scope.participants.length + 1).toString(), flag:'countries/' + $scope.newPlayerFlag, members:[]});
 		}
 	};
 
+	// For demo page, can be removed
+	$scope.generateWithRandomPlayers = function(){
+		if($scope.playersToGenerate){
+			$scope.participants = [];
+			$scope.tournamentData = {type: "SE", matches: []};
+			var n = parseInt($scope.playersToGenerate);
+			if(n > 3){
+				for(var i=1;i<=n;i++){
+					$scope.participants.push({name:'Player'+i, id: i.toString(), flag:'', members:[]});	
+				}
+				$scope.newTournament();
+			}
+		}
+	};
+
+	// For demo page, can be removed
 	$scope.loadTournament = function(){
 		$scope.tournamentData = data.loadTournament();
 		$scope.participants = data.getParticipants();
@@ -53,12 +70,6 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 	$scope.newTournament = function(){
 
 		function generateRound(participants, roundNumber, tournamentData){
-
-			function fillMatch(teamslot, team){
-				if(teamslot !== null && team !== null){
-					teamslot.id = team.id;
-				}
-			}
 
 			function createMatch(roundNumber, matchNumber){
 				return {team1:{id:"", score:""},
@@ -70,41 +81,35 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 
 			function getEvenDistribution(roundLength, participantsLength, promotedRound){
 				var dist = [];
-				var pairsAdded = 0;
-				var firstHalfEven = 0;
-				var firstHalfOdd = 0;
-				var secondHalfEven = 0;
-				var secondHalfOdd = 0;
-				var i;
+				var i, overflow, searchStart;
+				var x = promotedRound ? Math.floor((2*roundLength)-participantsLength) : participantsLength;
 
 				for(i=0;i<roundLength;i++){
-					dist[i] = promotedRound ? 1 : 0;
+					dist[i] = promotedRound ? 2 : 0;
 				}
 
-				for(i=(promotedRound ? roundLength : 0);i<participantsLength;i++){
-					var indeksi = 0;
-					if(pairsAdded % 2 === 0){
-						if(firstHalfEven < (roundLength / 4)){
-							indeksi = 2*firstHalfEven + 1;
-							firstHalfEven += 1;
-						}
-						else{
-							indeksi = 2*firstHalfOdd;
-							firstHalfOdd += 1;
+				var spread = roundLength % x === 0 ? roundLength / x : 2;
+				for(i=0; i<x; i++){
+					overflow = false;
+					searchStart = 0;
+					var ind = i === 0 ? 0 : (i % 2 === 0) ? Math.max((i/2 - 1)*spread, 0) : (roundLength / 2) + Math.max((Math.floor(i/2) - 1)*spread, 0);
+					if(i > 1){ ind += spread; }
+
+					if(ind > roundLength - 1){
+						overflow = true;
+						searchStart = (roundLength / 2) - 1;
+					}
+
+					if(dist[ind] === 1 || overflow){
+						for(var n=searchStart;n<roundLength;n++){
+							if(dist[n] !== 1) { 
+								ind = n;
+								break;
+							}
 						}
 					}
-					else{
-						if(secondHalfEven < (roundLength / 4)){
-							indeksi = roundLength/2 + 2*secondHalfEven + 1;
-							secondHalfEven += 1;
-						}
-						else{
-							indeksi = roundLength/2 + 2*secondHalfOdd;
-							secondHalfOdd += 1;
-						}
-					}
-					dist[indeksi] += 1;
-					pairsAdded += 1;
+
+					dist[ind] = promotedRound ? dist[ind] - 1 : dist[ind] + 1;
 				}
 
 				return dist;
@@ -145,7 +150,7 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 				}
 			}
 			
-			// Loop through participants / previous round games, and create new match for every two entries
+			// Loop through participants / previous round matches and create following match
 			for(i=0; i < participants.length; i++){
 				match = createMatch(roundNumber, round.length + 1);
 
@@ -154,8 +159,8 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 					if(i % 2 !== 0){
 						continue;
 					}
-					fillMatch(match.team1, participants[i]);
-					fillMatch(match.team2, participants[i+1]);
+					match.team1.id = participants[i].id;
+					match.team2.id = participants[i+1].id;
 				}
 				else if(i % 2 !== 0){ 
 					continue; 
@@ -172,7 +177,7 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 				if(shiftedMatches === 0){
 					for(i=0; i < balancingRound.length; i++){
 						match = createMatch(roundNumber + 1, roundB.length + 1);
-						fillMatch(match.team1, balancingRound[i]);
+						match.team1.id = balancingRound[i].id;
 						match.meta.matchType = 1;
 						roundB.push(match);
 					}
@@ -184,7 +189,7 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 					for(i=0; i<dist.length;i++){
 						match = createMatch(roundNumber + 1, roundB.length + 1);
 						if(dist[i] === 1){
-							fillMatch(match.team1, balancingRound[p]);
+							match.team1.id = balancingRound[p].id;
 							match.meta.matchType = 1;
 							p += 1;
 						}
@@ -193,16 +198,15 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 				}
 				// Shifted more rounds to the right (2nd round)
 				else if(shiftedMatches < 0){
-					// Create required amount of matches, at start with one participant in each
 					dist = getEvenDistribution(closestBalancedTree / 2, balancingRound.length, true);
 					var j = 0;
 					for(i=0;i<closestBalancedTree/2;i++){
 						match = createMatch(roundNumber + 1, roundB.length + 1);
-						fillMatch(match.team1, balancingRound[j]);
+						match.team1.id = balancingRound[j].id;
 						match.meta.matchType = 1;
 
 						if(dist[i] === 2){
-							fillMatch(match.team2, balancingRound[j+1]);
+							match.team2.id = balancingRound[j+1].id;
 							match.meta.matchType = 2;
 							shiftPreviousRound(roundB, round);
 							j += 1;
@@ -224,7 +228,6 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 			return;
 		}
 
-		// Clear the table
 		data.setParticipants($scope.participants.slice());
 
 		var previousRound = [];

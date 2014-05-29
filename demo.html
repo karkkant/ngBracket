@@ -4,6 +4,9 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
 	<script type="text/javascript" src="dist/ngBracket.min.js"></script>
+<!-- 	<script type="text/javascript" src="src/services.js"></script>
+	<script type="text/javascript" src="src/match.js"></script>
+	<script type="text/javascript" src="src/app.js"></script> -->
 	<link rel="stylesheet" type="text/css" href="styles/bracket.css">
 </head>
 <body ng-app="ngBracket" ng-controller="bracketController">
@@ -13,6 +16,7 @@
 	<button ng-click="addPlayer()">Add</button>
 	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
 	<button ng-click="loadTournament()">Load sample</button><br/>
+	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"></input><button ng-click="generateWithRandomPlayers()">Generate</button><br/>
 	<div ng-cloak class="ngBracket" id="bracketRoot"
 		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
 	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
