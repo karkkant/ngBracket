@@ -1,4 +1,4 @@
 ngBracket
 =========
 
-Bracket tournament builder, built with AngularJS.
+Bracket tournament generator, built with AngularJS.
