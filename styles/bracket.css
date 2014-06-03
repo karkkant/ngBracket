@@ -7,8 +7,8 @@ div.ngBracket .roundHeader{margin-bottom:20px;max-height:20px}
 /* Note! min-width and min-height are required. If you want to change team container size, remember to set min-height to match 2*team-height! */
 div.ngBracket .match{position:absolute;width:200px;min-width:200px;max-width;margin-bottom:20px;margin-right:40px;border-width:2px;border-style:solid;min-height:50px;max-height:50px;overflow:hidden;}
 div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1}
-div.ngBracket .team{height:25px;overflow:hidden}
-div.ngBracket .empty{background-color:#eee}
+div.ngBracket .team{height:25px;overflow:hidden;cursor:pointer;cursor:hand;}
+div.ngBracket .empty{background-color:#eee;cursor:default;}
 div.ngBracket .loser{background-color:#d3d3d3;color:#b2b2b2;}
 div.ngBracket .loser .score{color:#B22222}
 div.ngBracket .winner{}
@@ -23,7 +23,7 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {-webkit-appearance: none;}
 
 div.ngBracket .flagContainer{float:left;width:35px;height:25px}
-div.ngBracket .flag{background:no-repeat;height:35px;margin-left:-3px;margin-top:-6px;background-size:cover;text-indent:-9999px;z-index:200}
+div.ngBracket .flag{background:no-repeat;height:35px;margin-left:-3px;margin-top:-6px;background-size:cover;text-indent:-9999px;z-index:20}
 
 /* Connector styles */
 div.ngBracket .connectors{border-color:#000;z-index:1}
@@ -33,3 +33,23 @@ div.ngBracket .connectors .highlight{border-color:#0f0;background-color:transpar
 div.ngBracket .connectorBottom{border-bottom:2px solid}
 div.ngBracket .connectorLeft{border-left:2px solid}
 div.ngBracket .connectorTop{border-top:2px solid}
+
+/* Match details overlay styles */
+div#detailOverlay{visibility:hidden;z-index:19;margin-top:-30px; margin-left:3px;width:440px;height:250px;line-height:16px;display:inline;position:absolute;color:#111;
+	border:1px solid #DCA; background:#fffAF0;box-shadow: 10px 10px 5px #888888;}
+.callout {z-index:20;position:absolute;top:65px;border:0;left:-12px;}
+div#detailOverlay .teamDetail{float:left;width:50%;text-align:center;}
+div#detailOverlay .scoreWrapper{float:left;width:300px;display:table;max-height:50px}
+div#detailOverlay .resultScore{float:left;width:60px;margin-left:auto;margin-right:auto;text-align:center;font-size:24px}
+div#detailOverlay .flag {float:left;background:no-repeat;height:50px;width:50px;background-size:cover;margin-right:10px;margin-left:10px;margin-top:5px;}
+div#detailOverlay .teamName{margin-left:10px;margin-right:10px;vertical-align:middle;float:left;text-align:left;width:100px;font-size:22px;text-transform:capitalize;font-variant:small-caps;overflow:hidden}
+.scoreWrapper:before, .bottomDivider:after {height: 2px;content:"";
+background: -moz-linear-gradient(left, rgba(0,0,0,0) 0%, rgba(147,147,147,1) 50%, rgba(0,0,0,0) 100%);
+background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(0,0,0,0)), color-stop(50%,rgba(147,147,147,1)), color-stop(100%,rgba(0,0,0,0)));
+background: -webkit-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
+background: -o-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
+background: -ms-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
+background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#00000000',GradientType=1);
+display:block;margin-bottom:10px;margin-top:10px;}
+.detailFooter{position:absolute;bottom:0px;width:100%;text-align:center;font-variant:small-caps;}

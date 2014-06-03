@@ -78,11 +78,11 @@ myApp.directive('score',['data', function(data){
 /**
  * Creates match element and calculates it's position dynamically, based on the parent matches.
  */
-myApp.directive('match', ['connectorService', 'positioningService', 'data', '$filter', 'highlight', function(connectorService, positioningService, data, $filter, highlight){
+myApp.directive('match', ['connectorService', 'positioningService', 'data', '$filter', 'highlight', 'matchDetailService', function(connectorService, positioningService, data, $filter, highlight, matchDetailService){
 	return {
 		restrict: "E",
 		scope: false,
-		template: '<div class="match" ng-init="results={winner:\'\', loser:\'\'}" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length))}">'+
+		template: '<div class="match" ng-init="results={winner:\'\', loser:\'\'}" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length))}" ng-click="showDetails($event)">'+
 						'<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length), separator: (team1Details.id.length > 0 && team2Details.id.length > 0), highlight: highlight.teamId === team1Details.id, loser: results.loser.length > 0 && results.loser == team1Details.id, winner: results.winner.length > 0 && results.winner == team1Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div></div><span>{{ team1Details.name }}</span><score team="match.team1" match="match" results="results"></score></div>'+
 						'<div class="team" ng-mouseenter="highlightTrack(team2Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length), highlight: highlight.teamId === team2Details.id, loser: results.loser.length > 0 && results.loser == team2Details.id, winner: results.winner.length > 0 && results.winner == team2Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div></div><span>{{ team2Details.name }}</span><score team="match.team2" match="match" results="results"></score></div>'+
 					'</div>',
@@ -93,6 +93,12 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 			};
 			scope.highlightTrack = function(teamId){
 				highlight.setHighlight(teamId);
+			};
+			scope.showDetails = function($event){
+				if(scope.team1Details === null || scope.team2Details === null || angular.element($event.target).hasClass('score')){
+					return;
+				}
+				matchDetailService.showDetails($event.target, {matchId: scope.match.meta.matchId, team1Details: scope.team1Details, team2Details: scope.team2Details, results: scope.match});
 			};
 
 			scope.team1Details = scope.getTeamDetails(scope.match.team1.id);

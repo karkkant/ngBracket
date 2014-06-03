@@ -1,5 +1,23 @@
 var myApp = angular.module('ngBracket', []);
 
+function findParentByAttribute(el, attr, value){
+	if(el === null || attr === null || value === null){
+		return null;
+	}
+
+	var root = null;
+	var current = angular.element(el);
+	//find root of all matches
+	while(current.parent() !== null && current.parent().length > 0){
+		current = current.parent();
+		if(current.attr(attr) === value){
+			root = current;
+			break;
+		}
+	}
+	return root;
+}
+
 /**
 * Usage: <expression> | iif : trueValue : falseValue
 * Example: {{ team1.score > team2.score | iif : team1.name : team2.name }}
@@ -100,7 +118,7 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 		},
 		loadTournament: function(){
 			// Dummy data untill there's a service to fetch data from db.
-			var teamsData = JSON.parse('[{"name":"Austria","id":"1","flag":"countries/aut","members":[]},{"name":"Czech","id":"2","flag":"countries/cze","members":[]},{"name":"France","id":"3","flag":"countries/fra","members":[]},{"name":"Switzerland","id":"4","flag":"countries/sui","members":[]},{"name":"United States","id":"5","flag":"countries/usa","members":[]},{"name":"Sweden","id":"6","flag":"countries/swe","members":[]},{"name":"Finland","id":"7","flag":"countries/fin","members":[]},{"name":"Germany","id":"8","flag":"countries/ger","members":[]},{"name":"Russia","id":"9","flag":"countries/rus","members":[]},{"name":"Canada","id":"10","flag":"countries/can","members":[]},{"name":"United Kingdom","id":"11","flag":"countries/uk","members":[]},{"name":"China","id":"12","flag":"countries/chi","members":[]},{"name":"Denmark","id":"13","flag":"countries/den","members":[]}]');
+			var teamsData = JSON.parse('[{"name":"Austria","id":"1","flag":"countries/aut","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Czech","id":"2","flag":"countries/cze","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"France","id":"3","flag":"countries/fra","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Switzerland","id":"4","flag":"countries/sui","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"United States","id":"5","flag":"countries/usa","members":["Player1", "Player21", "Player3", "Player4", "Player5"]},{"name":"Sweden","id":"6","flag":"countries/swe","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Finland","id":"7","flag":"countries/fin","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Germany","id":"8","flag":"countries/ger","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Russia","id":"9","flag":"countries/rus","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Canada","id":"10","flag":"countries/can","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"United Kingdom","id":"11","flag":"countries/uk","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"China","id":"12","flag":"countries/chi","members":["Player1", "Player2", "Player3", "Player4", "Player5"]},{"name":"Denmark","id":"13","flag":"countries/den","members":["Player1", "Player2", "Player3", "Player4", "Player5"]}]');
 			var tData = JSON.parse('{"type":"SE","matches":[[{"team1":{"id":"1","score":""},"team2":{"id":"2","score":""},"meta":{"matchId":"match-1-1"},"details":{}},{"team1":{"id":"3","score":4},"team2":{"id":"4","score":2},"meta":{"matchId":"match-1-2"},"details":{}},{"team1":{"id":"5","score":""},"team2":{"id":"6","score":""},"meta":{"matchId":"match-1-3"},"details":{}},{"team1":{"id":"7","score":""},"team2":{"id":"8","score":""},"meta":{"matchId":"match-1-4"},"details":{}},{"team1":{"id":"9","score":3},"team2":{"id":"10","score":4},"meta":{"matchId":"match-1-5"},"details":{}}],[{"team1":{"id":"11","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-2-1","matchType":1},"details":{}},{"team1":{"id":"12","score":""},"team2":{"id":"3","score":""},"meta":{"matchId":"match-2-2","matchType":1},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-2-3"},"details":{}},{"team1":{"id":"13","score":0},"team2":{"id":"10","score":2},"meta":{"matchId":"match-2-4","matchType":1},"details":{}}],[{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-3-1"},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"10","score":""},"meta":{"matchId":"match-3-2"},"details":{}}],[{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-4-1"},"details":{}}]]}');
 			
 			this.setParticipants(teamsData);
@@ -125,16 +143,7 @@ myApp.factory('connectorService', ['data', function(data){
 					connectingMatchIndex += (data.getMatches()[rNumber-1][i].meta.matchType == 1 || (i+1 == mNumber)) ? 1 : 2;
 				}
 			}
-			var root = null;
-			var current = element;
-			//find root of all matches
-			while(current.parent() !== null && current.parent().length > 0){
-				current = current.parent();
-				if(current.attr('id') === "bracketRoot"){
-					root = current;
-					break;
-				}
-			}
+
 			var mId = "match-" + (rNumber-1) + "-" + connectingMatchIndex;
 			return angular.element(document.getElementById(mId));	
 		},
@@ -204,6 +213,63 @@ myApp.factory('positioningService', function(){
 				init(matchProperties);
 			}
 			return JSON.parse(JSON.stringify(matchProperties));
+		}
+	};
+});
+
+/**
+* Provides details view into selected match. 
+* Can be disabled with 'setEnabled' function, or by not having detail element with 'detailOverlay' Id at all.
+**/
+myApp.factory('matchDetailService', function(){
+	var detailContainer = null;
+	var matchDetails = {};
+	var prevShowedMatchId = '';
+	var init = false;
+	var isEnabled = true;
+	return {
+		setEnabled: function(enabled){
+			isEnabled = enabled;
+		},
+		mapMatchDetails: function(){
+			return matchDetails;
+		},
+		showDetails: function(matchElement, details){
+			if(!isEnabled){
+				return;
+			}
+			// Toggle closed
+			if(detailContainer !== null && detailContainer.css('visibility') == 'visible' && details.matchId == prevShowedMatchId){
+				this.hideDetails();
+				return;
+			}
+			prevShowedMatchId = details.matchId;
+			matchDetails.team1Details = details.team1Details;
+			matchDetails.team2Details = details.team2Details;
+			matchDetails.results = details.results;
+
+			if(!init){
+				detailContainer = angular.element(document.getElementById('detailOverlay'));
+				init = true;
+			}
+			if(detailContainer !== null && matchElement !== null){
+				var targetEl = findParentByAttribute(matchElement, 'class', 'match')[0];
+
+				if(targetEl !== null && targetEl.getBoundingClientRect()){
+					var div = targetEl.getBoundingClientRect();
+					var offsetLeft = div.right + ((window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft);
+					var offsetTop = div.top + ((window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop);
+
+					detailContainer.css('left', offsetLeft + 'px');
+					detailContainer.css('top', (offsetTop - 20) + 'px');
+					detailContainer.css('visibility', 'visible');
+				}
+			}
+		},
+		hideDetails: function(){
+			if(detailContainer !== null){
+				detailContainer.css('visibility', 'hidden');
+			}
 		}
 	};
 });
