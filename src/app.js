@@ -76,15 +76,15 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 
 	$scope.newTournament = function(){
 
-		function generateRound(participants, roundNumber, tournamentData){
+		function createMatch(roundNumber, matchNumber){
+			return {team1:{id:"", score:""},
+					team2:{id:"", score:""},
+					meta: {matchId:("match-"+ roundNumber + "-" + matchNumber)},
+					details:{}
+				};
+		}		
 
-			function createMatch(roundNumber, matchNumber){
-				return {team1:{id:"", score:""},
-						team2:{id:"", score:""},
-						meta: {matchId:("match-"+ roundNumber + "-" + matchNumber)},
-						details:{}
-					};
-			}
+		function generateRound(participants, roundNumber, tournamentData){
 
 			function getEvenDistribution(roundLength, participantsLength, promotedRound){
 				var dist = [];
@@ -251,6 +251,14 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 			previousRound = generateRound(partic, roundNumber, $scope.tournamentData); 
 			$scope.tournamentData.matches.push(previousRound.slice());
 			roundNumber = $scope.tournamentData.matches.length + 1;
+		}
+
+		$scope.tournamentData.matches[$scope.tournamentData.matches.length - 1][0].meta.matchType = 'finals';
+
+		if($scope.playBronzeMatch){
+			var bronzeMatch = createMatch($scope.tournamentData.matches.length, 2);
+			bronzeMatch.meta.matchType = 'bronze';
+			$scope.tournamentData.matches[$scope.tournamentData.matches.length - 1].push(bronzeMatch);
 		}
 
 		data.setTournament($scope.tournamentData);

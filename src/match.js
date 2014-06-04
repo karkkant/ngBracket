@@ -95,7 +95,7 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 				highlight.setHighlight(teamId);
 			};
 			scope.showDetails = function($event){
-				if(scope.team1Details === null || scope.team2Details === null || angular.element($event.target).hasClass('score')){
+				if(scope.team1Details === null || scope.team2Details === null || !$event.target || angular.element($event.target).hasClass('score')){
 					return;
 				}
 				matchDetailService.showDetails($event.target, {matchId: scope.match.meta.matchId, team1Details: scope.team1Details, team2Details: scope.team2Details, results: scope.match});
@@ -118,6 +118,11 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 			var rNumber = parseInt(scope.match.meta.matchId.split('-')[1]);
 			var mNumber = parseInt(scope.match.meta.matchId.split('-')[2]);
 			var properties = positioningService.getBracketProperties();
+			el.prop('id', 'match-' + rNumber + '-' + mNumber);
+
+			if(scope.match.meta.matchType == 'finals'){
+				scope.finals = true;
+			}
 
 			// center horizontally
 			el.css("left", properties.matchMarginH / 2 + "px");
@@ -131,7 +136,12 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 			else if(scope.match.meta.matchType == 2){
 				top = (properties.matchHeight + properties.matchMarginV) * (mNumber - 1) + properties.roundMarginTop;
 			}
-			else{        	
+			else if(scope.match.meta.matchType == 'bronze'){
+				scope.bronzeMatch = true;
+				var goldMatch = angular.element(document.getElementById('match-' + rNumber + '-1'));
+				top = goldMatch.prop('offsetTop') + properties.matchHeight + 40;
+			}
+			else{
 				var cEl1 = connectorService.findConnectingMatch(scope, el);
 				top = angular.element(cEl1[0].firstElementChild).prop('offsetTop');
 
@@ -168,7 +178,7 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 			}
 
 			// Promoted match means a 1st round match with 2 participants, which was moved to round 2. They have no "parent" matches.
-			if(scope.match.meta.matchType == 2){
+			if(scope.match.meta.matchType == 2 || scope.match.meta.matchType == 'bronze'){
 				return;
 			}
 

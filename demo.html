@@ -17,7 +17,7 @@
 	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
 	<button ng-click="loadTournament()">Load sample</button>
 	<input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=true" ng-model="enableDetails">Show match details</input><br/>
-	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"></input><button ng-click="generateWithRandomPlayers()">Generate</button><br/>
+	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"></input><button ng-click="generateWithRandomPlayers()">Generate</button><input type="checkbox" ng-init="playBronzeMatch=true" ng-model="playBronzeMatch">Play bronze match</input><br/>
 	<div ng-cloak class="ngBracket" id="bracketRoot"
 		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
 	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">

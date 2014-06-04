@@ -75,12 +75,42 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 			tournamentData = tData;
 		},
 		updateTournament: function(match, winnerId, oldValue){
+			function promoteToMatch(nextMatch, teamId, oldValues, first){
+				if(oldValues.indexOf(nextMatch.team1.id) !== -1){
+					nextMatch.team1.id = teamId;
+				}
+				else if(oldValues.indexOf(nextMatch.team2.id) !== -1){
+					nextMatch.team2.id = teamId;
+				}
+				else{
+					// normal case
+					if((first || connectingMatchIndex > matchIndex) && (!nextMatch.team1.id || 0 === nextMatch.team1.id.length)){
+						nextMatch.team1.id = teamId;
+					}
+					else{
+						nextMatch.team2.id = teamId;
+					}							
+				}
+			}
+
 			var b = match.meta.matchId.split('-');
 			var round = parseInt(b[1]);
 			var matchIndex = parseInt(b[2]);
 
 			if(round === tournamentData.matches.length){
 				return;
+			}
+
+			var t = [match.team1.id, match.team2.id];
+			if(oldValue !== null && oldValue.length > 0){
+				t.push(oldValue);
+			}			
+
+			// Push losers to bronze match if there is one
+			if(round === tournamentData.matches.length - 1 && tournamentData.matches[tournamentData.matches.length - 1].length === 2){
+				var loser = match.team1.id === winnerId ? match.team2.id : match.team1.id;
+				var bronzeMatch = tournamentData.matches[tournamentData.matches.length - 1][1];
+				promoteToMatch(bronzeMatch, loser, t, matchIndex === 1);
 			}
 
 			var connectingMatchIndex = 0;
@@ -90,27 +120,7 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 				if(nextRound[i].meta.matchType != 2){
 					connectingMatchIndex += (nextRound[i].meta.matchType == 1) ? 1 : 2;
 					if(connectingMatchIndex >= matchIndex){
-						// Check if winner has already been set from this match.
-						var t = [match.team1.id, match.team2.id];
-						if(oldValue !== null && oldValue.length > 0){
-							t.push(oldValue);
-						}
-
-						if(t.indexOf(nextRound[i].team1.id) !== -1){
-							nextRound[i].team1.id = winnerId;
-						}
-						else if(t.indexOf(nextRound[i].team2.id) !== -1){
-							nextRound[i].team2.id = winnerId;
-						}
-						else{
-							// normal case
-							if(connectingMatchIndex > matchIndex && (!nextRound[i].team1.id || 0 === nextRound[i].team1.id.length)){
-								nextRound[i].team1.id = winnerId;
-							}
-							else{
-								nextRound[i].team2.id = winnerId;
-							}							
-						}
+						promoteToMatch(nextRound[i], winnerId, t);
 						break;
 					}
 				}
