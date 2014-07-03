@@ -16,7 +16,7 @@ module.exports = function(grunt){
 				separator: ';'
 			},
 			dist:{
-				src: ['src/services.js', 'src/match.js', 'src/app.js'],
+				src: ['src/services.js', 'src/match.js', 'src/tournament.js'],
 				dest: 'src/<%= pkg.name %>.js'
 			}
 		},

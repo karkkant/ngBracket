@@ -3,12 +3,12 @@ div.ngBracket #bracketRoot{clear:right;}
 div.ngBracket .round{position:relative;width:240px;height:100%;float:left}
 div.ngBracket .roundTitle{display:table;margin:0 auto;}
 /* header's max-height is required */
-div.ngBracket .roundHeader{margin-bottom:20px;max-height:20px}
+div.ngBracket .roundHeader{margin-bottom:20px;max-height:20px;min-height:20px}
 /* Note! min-width and min-height are required. If you want to change team container size, remember to set min-height to match 2*team-height! */
 div.ngBracket .match{position:absolute;width:200px;min-width:200px;max-width;margin-bottom:20px;margin-right:40px;border-width:2px;border-style:solid;min-height:50px;max-height:50px;overflow:hidden;}
-div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1}
+div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1;}
 div.ngBracket .team{height:25px;overflow:hidden;cursor:pointer;cursor:hand;}
-div.ngBracket .empty{background-color:#eee;cursor:default;}
+div.ngBracket .empty{background-color:#eee;cursor:default;font-size:14px;}
 div.ngBracket .loser{background-color:#d3d3d3;color:#b2b2b2;}
 div.ngBracket .loser .score{color:#B22222}
 div.ngBracket .winner{}
@@ -21,9 +21,11 @@ input.score{float:right;font-weight:bold;text-align:center;vertical-align:middle
 input[type='number'] {-moz-appearance:textfield;}
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {-webkit-appearance: none;}
+div.ngBracket .hidden{display:none;}
 
 div.ngBracket .flagContainer{float:left;width:35px;height:25px}
 div.ngBracket .flag{background:no-repeat;height:35px;margin-left:-3px;margin-top:-6px;background-size:cover;text-indent:-9999px;z-index:20}
+div.ngBracket .empty .flagContainer{width:5px}
 
 /* Connector styles */
 div.ngBracket .connectors{border-color:#000;z-index:1}

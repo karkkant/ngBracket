@@ -6,24 +6,32 @@
 	<script type="text/javascript" src="dist/ngBracket.min.js"></script>
 <!--  	<script type="text/javascript" src="src/services.js"></script>
 	<script type="text/javascript" src="src/match.js"></script>
-	<script type="text/javascript" src="src/app.js"></script> -->
+	<script type="text/javascript" src="src/tournament.js"></script> -->
+	<script type="text/javascript" src="src/demoApp.js"></script>
 	<link rel="stylesheet" type="text/css" href="styles/bracket.css">
 </head>
 <body ng-app="ngBracket" ng-controller="bracketController">
 	<span>Flag is optional. Supported choices for the demo: aut, can, chi, cze, den, est, fin, fra, ger, rus, sui, swe, uk, usa</span><br/><br/>
-	<span>Name:</span><input type="text" ng-model="newPlayerName"></input>
-	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"></input>
+	<span>Type: </span>
+	<select ng-init="tType='SE'" ng-model="tType">
+	<option value="SE">Single Elimination</option>
+	<option value="DE">Double Elimination</option>
+	</select><br/>
+	<span>Name:</span><input type="text" ng-model="newPlayerName"/>
+	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"/>
 	<button ng-click="addPlayer()">Add</button>
 	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
-	<button ng-click="loadTournament()">Load sample</button>
-	<input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=true" ng-model="enableDetails">Show match details</input><br/>
-	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"></input><button ng-click="generateWithRandomPlayers()">Generate</button><input type="checkbox" ng-init="playBronzeMatch=true" ng-model="playBronzeMatch">Play bronze match</input><br/>
+	<button ng-click="loadTournament('SE')">Load SE sample</button>
+	<button ng-click="loadTournament('DE')">Load DE sample</button>
+	<input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=false" ng-model="enableDetails">Show match details</input><br/>
+	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"/><button ng-click="generateWithRandomPlayers()">Generate</button><input type="checkbox" ng-init="playBronzeMatch=true" ng-model="playBronzeMatch">Play bronze match</input><br/>
 	<div ng-cloak class="ngBracket" id="bracketRoot"
 		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
 	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
 		<div ng-repeat="m in tournamentData.matches" class="round" id="round-{{$index+1}}" >
 			<div class="roundHeader">
-				<span class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+				<span ng-if="tournamentData.type === 'SE'" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+				<span ng-if="tournamentData.type === 'DE' && $index+1 >= startingRound" ng-init="rn=(!startingRound || startingRound==1) ? $index+1 : $index+2-startingRound" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
 			</div>
 			<div class="matchWrapper" ng-repeat="match in m" id="{{match.meta.matchId}}">
 				<match></match>
