@@ -68,7 +68,7 @@ function findFirstRound(data){
 * Contains all the necessary data that controllers need.
 * Returns copy of data when requested.
 */
-myApp.factory('data', ['$rootScope', function($rootScope){
+myApp.factory('data', function(){
 	var participantData = {};
 	var tournamentData = {};
 	var firstRound = null;
@@ -225,7 +225,7 @@ myApp.factory('data', ['$rootScope', function($rootScope){
 			this.setTournament(tournamentData);
 		}
 	};
-}]);
+});
 
 /**
 * Service for finding connecting matches.

@@ -30,13 +30,29 @@ module.exports = function(grunt){
 				}
 			}
 		},
-		clean:['src/<%= pkg.name %>.js']
+		clean:['src/<%= pkg.name %>.js'],
+		jasmine: {
+			src: [
+				'refs/angular.js',
+				'refs/angular-mocks.js',		
+				'src/services.js',
+				'src/match.js',
+				'src/tournament.js'
+			],
+			options:{
+				specs: ['test/**/*Spec.js'],
+				keepRunner: true
+			}
+			
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-jasmine');
 
-	grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'clean']);
+	grunt.registerTask('test', ['jshint', 'jasmine']);
+	grunt.registerTask('default', ['jshint', 'jasmine', 'concat', 'uglify', 'clean']);
 }
