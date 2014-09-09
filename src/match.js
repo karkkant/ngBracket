@@ -26,9 +26,7 @@ myApp.directive('score',['data', function(data){
 			match: "=",
 			results: "="
 		},
-		template: '<div class="score" ng-click="editScore(team)" ng-init="status=\'uneditable\'" ng-switch="status">'+
-					'<input class="score" ng-switch-when="editable" ng-blur="endEditScore(team)" do-focus="" type="number" ng-model="team.score" ng-pattern="/^[0-9]+$/"></input>'+
-					'<span ng-class="{score:true, empty: (!team.id || 0 === team.id.length)}" ng-switch-when="uneditable">{{ team.score }}</span></div>',
+		templateUrl: 'partials/score.html',
 		link: function(scope, el, attrs){
 			scope.editScore = function(team){
 				if(scope.match.team1.id && scope.match.team2.id){
@@ -83,10 +81,7 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 	return {
 		restrict: "E",
 		scope: false,
-		template: '<div class="match" ng-init="results={winner:\'\', loser:\'\'}" ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length)),hidden:(prop.finals2 === false)}" ng-click="showDetails($event)">'+
-						'<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team1Details.id || 0 === team1Details.id.length), separator: (team1Details.id.length > 0 && team2Details.id.length > 0), highlight: highlight.teamId === team1Details.id, loser: results.loser.length > 0 && results.loser == team1Details.id, winner: results.winner.length > 0 && results.winner == team1Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team1Details.flag}}.png)"></div></div><span>{{ (team1Description.length > 0 && !team1Details.name) | iif : team1Description : team1Details.name }}</span><score team="match.team1" match="match" results="results"></score></div>'+
-						'<div class="team" ng-mouseenter="highlightTrack(team2Details.id)" ng-mouseleave="highlightTrack()" ng-class="{empty: (!team2Details.id || 0 === team2Details.id.length), highlight: highlight.teamId === team2Details.id, loser: results.loser.length > 0 && results.loser == team2Details.id, winner: results.winner.length > 0 && results.winner == team2Details.id}"><div class="flagContainer"><div class="flag" style="background-image:url(images/{{team2Details.flag}}.png)"></div></div><span>{{ (team2Description.length > 0 && !team2Details.name) | iif : team2Description : team2Details.name }}</span><score team="match.team2" match="match" results="results"></score></div>'+
-					'</div>',
+		templateUrl: 'partials/match.html',
 		replace: true,
 		link: function(scope, el, attrs){
 			scope.getTeamDetails = function(teamId){
