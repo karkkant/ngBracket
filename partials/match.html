@@ -1,4 +1,4 @@
-<div class="match" ng-init="results={winner:\'\', loser:\'\'}" 
+<div class="match" ng-init="results={winner:'', loser:''}" 
 	 ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length)), hidden:(prop.finals2 === false)}" 
 	 ng-click="showDetails($event)">
 	<div class="team" ng-mouseenter="highlightTrack(team1Details.id)" ng-mouseleave="highlightTrack()" 
