@@ -1,45 +1,47 @@
 'use strict';
 
-describe('Bracket generator tests', function(){
+describe('Bracket generator', function() {
 	var tournament, result, players;
 
 	var mockPositioningService = {
-		resetProperties: function(){}
+		resetProperties: function() {}
 	}
 
 	var mockData = {
-		setParticipants: function(participants){},
-		setTournament: function(tData){},
-		getTournamentType: function(){return 'SE';}
+		setParticipants: function(participants) {},
+		setTournament: function(tData) {},
+		getTournamentType: function() {
+			return 'SE';
+		}
 	}
 
-	function generatePlayers(amount){
+	function generatePlayers(amount) {
 		var p = [];
-		for(var i=1;i<= parseInt(amount);i++){
+		for (var i = 1; i <= parseInt(amount); i++) {
 			p.push(i.toString());
 		}
 		return p;
 	}
 
-	describe('Single Elimination tests', function(){
+	describe('Single Elimination tests', function() {
 
 		var ttype = 'SE';
 
 		beforeEach(module('ngBracket'));
 
-		beforeEach(function(){
+		beforeEach(function() {
 
-			module(function($provide){
+			module(function($provide) {
 				$provide.value('data', mockData);
 				$provide.value('positioningService', mockPositioningService);
 			});
 
-			inject(function(_tournament_){
+			inject(function(_tournament_) {
 				tournament = _tournament_;
 			});
 		});
 
-		it('Should generate balanced bracket with bronze match', function(){
+		it('Should generate balanced bracket with bronze match', function() {
 			players = generatePlayers(8);
 			result = tournament.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(3);
@@ -47,7 +49,7 @@ describe('Bracket generator tests', function(){
 			expect(result.matches[2].length).toBe(2);
 		});
 
-		it('Should generate balanced bracket without bronze match', function(){
+		it('Should generate balanced bracket without bronze match', function() {
 			players = generatePlayers(8);
 			result = tournament.newTournament(ttype, players, false);
 			expect(result.matches.length).toBe(3);
@@ -89,26 +91,28 @@ describe('Bracket generator tests', function(){
 		});
 	});
 
-	describe('Double Elimination tests', function(){
+	describe('Double Elimination tests', function() {
 
 		var ttype = 'DE';
-		mockData.getTournamentType = function(){return 'DE';}
+		mockData.getTournamentType = function() {
+			return 'DE';
+		}
 
 		beforeEach(module('ngBracket'));
 
-		beforeEach(function(){
+		beforeEach(function() {
 
-			module(function($provide){
+			module(function($provide) {
 				$provide.value('data', mockData);
 				$provide.value('positioningService', mockPositioningService);
 			});
 
-			inject(function(_tournament_){
+			inject(function(_tournament_) {
 				tournament = _tournament_;
 			});
 		});
 
-		it('Should generate balanced bracket with bronze match', function(){
+		it('Should generate balanced bracket with bronze match', function() {
 			players = generatePlayers(8);
 			result = tournament.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(5);
@@ -118,7 +122,7 @@ describe('Bracket generator tests', function(){
 			expect(result.matches[4].length).toBe(3);
 		});
 
-		it('Should generate balanced bracket without bronze match', function(){
+		it('Should generate balanced bracket without bronze match', function() {
 			players = generatePlayers(8);
 			result = tournament.newTournament(ttype, players, false);
 			expect(result.matches.length).toBe(5);
@@ -142,7 +146,7 @@ describe('Bracket generator tests', function(){
 			expect(result.matches.length).toBe(10);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
 			expect(result.matches[0].length).toBe(16);
-			expect(result.matches[3].length).toBe(result.matches[4].length);			
+			expect(result.matches[3].length).toBe(result.matches[4].length);
 		});
 
 		it("Should generate unbalanced bracket with player amount below the halfway between balanced brackets", function() {

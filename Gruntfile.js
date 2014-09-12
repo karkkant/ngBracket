@@ -1,8 +1,8 @@
-module.exports = function(grunt){
+module.exports = function(grunt) {
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		jshint:{
+		jshint: {
 			files: ['src/*.js'],
 			options: {
 				globals: {
@@ -11,39 +11,44 @@ module.exports = function(grunt){
 				}
 			}
 		},
-		concat:{
+		concat: {
 			options: {
 				separator: ';'
 			},
-			dist:{
+			dist: {
 				src: ['src/services.js', 'src/match.js', 'src/tournament.js'],
 				dest: 'src/<%= pkg.name %>.js'
 			}
 		},
-		uglify:{
-			options:{
+		uglify: {
+			options: {
 				banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
 			},
-			dist:{
+			dist: {
 				files: {
 					'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
 				}
 			}
 		},
-		clean:['src/<%= pkg.name %>.js'],
+		clean: ['src/<%= pkg.name %>.js'],
+		karma: {
+			unit: {
+				configFile: 'karma.conf.js'
+			}
+		},
 		jasmine: {
 			src: [
 				'refs/angular.js',
-				'refs/angular-mocks.js',		
+				'refs/angular-mocks.js',
 				'src/services.js',
 				'src/match.js',
 				'src/tournament.js'
 			],
-			options:{
+			options: {
 				specs: ['test/**/*Spec.js'],
 				keepRunner: true
 			}
-			
+
 		}
 	});
 
@@ -51,8 +56,9 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-contrib-jasmine');
 
-	grunt.registerTask('test', ['jshint', 'jasmine']);
-	grunt.registerTask('default', ['jshint', 'jasmine', 'concat', 'uglify', 'clean']);
+	grunt.registerTask('test', ['jshint', 'karma']);
+	grunt.registerTask('default', ['jshint', 'karma', 'concat', 'uglify', 'clean']);
 }
