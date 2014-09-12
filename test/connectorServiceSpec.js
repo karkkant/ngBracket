@@ -29,7 +29,7 @@ describe('ConnectorService', function() {
 		scope.match = data[1][1];
 		mockData.tData = data;
 
-		result = connectorService.findConnectingMatchId(scope, scope.match.meta.matchId);
+		result = connectorService.findConnectingMatchId(scope.match);
 
 		expect(result).toBe('match-1-3');
 	});
@@ -39,7 +39,7 @@ describe('ConnectorService', function() {
 		scope.match = data[1][4];
 		mockData.tData = data;
 
-		result = connectorService.findConnectingMatchId(scope, scope.match.meta.matchId);
+		result = connectorService.findConnectingMatchId(scope.match);
 
 		expect(result).toBe('match-1-3');
 	});
@@ -49,7 +49,7 @@ describe('ConnectorService', function() {
 		scope.match = data[1][4];
 		mockData.tData = data;
 
-		result = connectorService.findConnectingMatchId(scope, scope.match.meta.matchId);
+		result = connectorService.findConnectingMatchId(scope.match);
 
 		expect(result).toBe('match-1-7');
 	});
@@ -59,12 +59,12 @@ describe('ConnectorService', function() {
 		scope.match = data[1][7];
 		mockData.tData = data;
 
-		result = connectorService.findConnectingMatchId(scope, scope.match.meta.matchId);
+		result = connectorService.findConnectingMatchId(scope.match);
 
 		expect(result).toBe('match-1-1-L');
 
 		scope.match = data[3][2];
-		result = connectorService.findConnectingMatchId(scope, scope.match.meta.matchId);
+		result = connectorService.findConnectingMatchId(scope.match);
 
 		expect(result).toBe('match-3-1-L');
 	});

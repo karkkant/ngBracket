@@ -54,33 +54,36 @@ angular.module('ngBracket').controller('bracketController', ['$scope', '$window'
 	$scope.generateWithRandomPlayers = function(){
 		if($scope.playersToGenerate){
 			$scope.participants = [];
-			$scope.tournamentData = {type: $scope.tType, matches: [], properties:{}};
+			var tournamentData = {type: $scope.tType, matches: [], properties:{}};
 			var n = parseInt($scope.playersToGenerate);
 			if(n > 3){
 				for(var i=1;i<=n;i++){
 					$scope.participants.push({name:'Player'+i, id: i.toString(), flag:'', members:[]});	
 				}
-				$scope.tournamentData = tournament.newTournament($scope.tType, $scope.participants, $scope.playBronzeMatch);
+				startTournament(tournament.newTournament($scope.tType, $scope.participants, $scope.playBronzeMatch), $scope.participants);
 			}
 		}
 	};
 
+	function startTournament(tournamentData, participants){
+		positioningService.resetProperties();
+		data.loadTournament(tournamentData, participants.slice());
+		$scope.participants = participants;		
+		$scope.tournamentData = tournamentData;
+	}
+
 	// For demo page, can be removed
 	$scope.newTournament = function(){
-		$scope.tournamentData = tournament.newTournament($scope.tType, $scope.participants, $scope.playBronzeMatch);
+		startTournament(tournament.newTournament($scope.tType, $scope.participants, $scope.playBronzeMatch), $scope.participants);
 	};
 
 	// For demo page, can be removed
 	$scope.loadTournament = function(sample){
 		if(sample === 'SE'){
-			$scope.tournamentData = SEsampleTournamentData;
-			$scope.participants = SEsampleParticipantsData;
-			data.loadTournament(SEsampleTournamentData, SEsampleParticipantsData);	
+			startTournament(SEsampleTournamentData, SEsampleParticipantsData);	
 		}
 		else if(sample === 'DE'){
-			$scope.tournamentData = DEsampleTournamentData;
-			$scope.participants = DEsampleParticipantsData;
-			data.loadTournament(DEsampleTournamentData, DEsampleParticipantsData);	
+			startTournament(DEsampleTournamentData, DEsampleParticipantsData);	
 		}
 	};
 

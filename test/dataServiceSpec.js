@@ -11,6 +11,8 @@ describe('DataService', function() {
 	'[{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-6-1","matchType":"finals"},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-6-2","matchType":"finals2"},"details":{}},{"team1":{"id":"","score":""},"team2":{"id":"","score":""},"meta":{"matchId":"match-6-3","matchType":"bronze"},"details":{}}]],'+
 	'"properties":{"unbalanced":true,"lbOffset":6.5}}';
 
+	var samplePlayers = {};
+
 	beforeEach(module('ngBracket'));
 
 	beforeEach(function() {
@@ -23,7 +25,7 @@ describe('DataService', function() {
 	});
 
 	it('should update normal match and promote loser', function() {
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 
 		expect(dummyTournament.matches[2][1].team1.id).toBe('');
 		expect(dummyTournament.matches[0][0].team1.id).toBe('');
@@ -39,7 +41,7 @@ describe('DataService', function() {
 	});
 
 	it("should update loser match without promoting loser", function() {
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 
 		expect(dummyTournament.matches[1][7].team2.id).toBe('');
 
@@ -53,7 +55,7 @@ describe('DataService', function() {
 	});
 
 	it("should promote losers to finals and bronze match", function() {
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 		
 		// loser bracket finals ; winner goes to finals and loser to bronze match
 		expect(dummyTournament.matches[5][0].team1.id).toBe('');
@@ -70,7 +72,7 @@ describe('DataService', function() {
 
 		// loser bracket semi-finals ; loser goes to bronze match
 		dummyTournament = JSON.parse(sampleData);
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 
  		expect(dummyTournament.matches[5][2].team1.id).toBe('');
 
@@ -84,7 +86,7 @@ describe('DataService', function() {
 	});
 
 	it("should promote finals round 2 if loser bracket finalist won", function() {
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 
 		expect(dummyTournament.matches[5][1].team1.id).toBe('');
 		expect(dummyTournament.matches[5][1].team2.id).toBe('');
@@ -94,7 +96,7 @@ describe('DataService', function() {
 		dummyTournament.matches[4][1].team2.id = '3';
 		dummyTournament.matches[4][1].team1.score = 2;
 		dummyTournament.matches[4][1].team2.score = 0;
-		
+
 		match = dummyTournament.matches[5][0];
 		match.team1.id = '1';
 		match.team2.id = '2';
@@ -107,7 +109,7 @@ describe('DataService', function() {
 	});
 
 	it("should not promote finals round 2 if loser bracket finalist lost", function() {
-		dataService.setTournament(dummyTournament);
+		dataService.loadTournament(dummyTournament, samplePlayers);
 
 		expect(dummyTournament.matches[5][1].team1.id).toBe('');
 		expect(dummyTournament.matches[5][1].team2.id).toBe('');

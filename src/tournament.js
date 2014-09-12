@@ -10,7 +10,7 @@
 * Match types: 1 = Match where one player is promoted from round1 to round2. That is, instead of 2, there is 3 players fighting over one slot.
 * 			   2 = A full round 1 match promoted to round 2.
 **/
-myApp.factory('tournament', ['data', 'positioningService', function(data, positioningService){
+myApp.factory('tournament', function(){
 	return {
 		newTournament: function(ttype, participants, playBronzeMatch){
 
@@ -301,9 +301,6 @@ myApp.factory('tournament', ['data', 'positioningService', function(data, positi
 				return tournamentData;
 			}			
 
-			positioningService.resetProperties();
-			data.setParticipants(participants.slice());
-
 			var previousRound = [];
 			var loserBracket = [];
 			var roundNumber = 1;
@@ -502,8 +499,7 @@ myApp.factory('tournament', ['data', 'positioningService', function(data, positi
 				tournamentData.matches[tournamentData.matches.length - 1].push(bronzeMatch);
 			}
 
-			data.setTournament(tournamentData);
 			return tournamentData;
 		}
 	};
-}]);
+});

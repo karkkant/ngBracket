@@ -42,6 +42,9 @@ myApp.filter('getById', function() {
 	};
 });
 
+/*
+ * Service that keeps track of a team to highlight through bracket.
+ */
 myApp.factory('highlight', function() {
 	var highlight = {
 		teamId: null
@@ -56,6 +59,9 @@ myApp.factory('highlight', function() {
 	};
 });
 
+/**
+ * Returns the first round number that has 'normal' matches (= not just loser bracket matches)
+ */
 function findFirstRound(data) {
 	for (var r = 0; r < data.length; r++) {
 		// Normal matches are on top, so we only need to check first match
@@ -69,6 +75,9 @@ function findFirstRound(data) {
 /**
  * Contains all the necessary data that controllers need.
  * Returns copy of data when requested.
+ *
+ * NOTE: Remember to call PositioningService.resetProperties when loading new tournament.
+ *		 (See the demoApp controller for a sample)
  */
 myApp.factory('data', function() {
 	var participantData = {};
@@ -86,13 +95,6 @@ myApp.factory('data', function() {
 		},
 		getProperties: function() {
 			return tournamentData.properties;
-		},
-		setParticipants: function(participants) {
-			participantData = participants;
-		},
-		setTournament: function(tData) {
-			tournamentData = tData;
-			firstRound = tData.type === 'DE' ? findFirstRound(tData.matches) : null;
 		},
 		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {
 			function promoteToMatch(nextMatch, teamId, oldValues, first) {
@@ -218,9 +220,10 @@ myApp.factory('data', function() {
 				}
 			}
 		},
-		loadTournament: function(tournamentData, participants) {
-			this.setParticipants(participants);
-			this.setTournament(tournamentData);
+		loadTournament: function(tData, participants) {
+			participantData = participants;
+			tournamentData = tData;
+			firstRound = tData.type === 'DE' ? findFirstRound(tData.matches) : null;
 		}
 	};
 });
@@ -231,16 +234,17 @@ myApp.factory('data', function() {
 myApp.factory('connectorService', ['data',
 	function(data) {
 		return {
-			findConnectingMatchId: function(scope, currentMatchId) {
-				var rNumber = parseInt(currentMatchId.split('-')[1]);
-				var mNumber = parseInt(currentMatchId.split('-')[2]);
-				var suffix = currentMatchId.slice(-1) === 'L' ? '-L' : '';
+			findConnectingMatchId: function(match) {
+				var idParts = match.meta.matchId.split('-');
+				var rNumber = parseInt(idParts[1]);
+				var mNumber = parseInt(idParts[2]);
+				var suffix = match.meta.matchId.slice(-1) === 'L' ? '-L' : '';
 				var connectingMatchIndex = 0;
 				var matches = data.getMatches();
 				var startInd = 0;
 				var i, mId;
 
-				if (scope.match.meta.matchType === 'finals2') {
+				if (match.meta.matchType === 'finals2') {
 					mId = 'match-' + rNumber + '-1';
 				} else {
 					if (suffix.length > 0) {
@@ -263,8 +267,8 @@ myApp.factory('connectorService', ['data',
 
 				return mId;
 			},
-			findConnectingMatch: function(scope, element) {
-				return angular.element(document.getElementById(this.findConnectingMatchId(scope, scope.match.meta.matchId)));
+			findConnectingMatch: function(match) {
+				return angular.element(document.getElementById(this.findConnectingMatchId(match)));
 			},
 			findChildMatch: function(element) {
 				var els = angular.element(element).children();
@@ -344,9 +348,9 @@ myApp.factory('positioningService', ['data',
 			matchMarginV: null, // Vertical margin between match elements
 			borderThickness: null, // Match element's border thickness
 			roundMarginTop: null, // Round top margin (= margin from round header to topmost match element)
-			startingRound: null,
+			startingRound: null, // Round number which contains first playable matches (only in DE, where loser bracket may be longer)
 			roundHeight: null,
-			lbOffset: null
+			lbOffset: null // Vertical offset where loser bracket begins
 		};
 		var initialized = false;
 
@@ -355,7 +359,7 @@ myApp.factory('positioningService', ['data',
 				if (!initialized) {
 					init(matchProperties);
 				}
-				return JSON.parse(JSON.stringify(matchProperties));
+				return JSON.parse(JSON.stringify(matchProperties)); // return a copy of properties, just in case
 			},
 			resetProperties: function() {
 				initialized = false;

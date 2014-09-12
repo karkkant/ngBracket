@@ -169,7 +169,7 @@ myApp.directive('match', ['connectorService', 'positioningService', 'data', '$fi
 					var finals1El = angular.element(document.getElementById('match-' + rNumber + '-1'));
 					top = finals1El.prop('offsetTop');
 				} else {
-					var cEl1 = connectorService.findConnectingMatch(scope, el);
+					var cEl1 = connectorService.findConnectingMatch(scope.match);
 					top = angular.element(cEl1[0].firstElementChild).prop('offsetTop');
 
 					if (scope.match.meta.matchType != 1) {
@@ -226,7 +226,7 @@ myApp.directive('connectors', ['connectorService', 'positioningService', '$compi
 
 				if (round > 1 && (lm || (!lm && round > properties.startingRound))) {
 					var thisMatch = connectorService.findChildMatch(el.parent());
-					var connectingMatch = angular.element(connectorService.findConnectingMatch(scope, el)[0].firstElementChild);
+					var connectingMatch = angular.element(connectorService.findConnectingMatch(scope.match)[0].firstElementChild);
 					scope.cMatch1 = connectingMatch.scope().match;
 
 					// Connector endpoint
