@@ -1,6 +1,6 @@
 var myApp = angular.module('ngBracket', []);
 
-function findParentByAttribute(el, attr, value) {
+myApp.findParentByAttribute = function(el, attr, value) {
 	if (el === null || attr === null || value === null) {
 		return null;
 	}
@@ -16,7 +16,7 @@ function findParentByAttribute(el, attr, value) {
 		}
 	}
 	return root;
-}
+};
 
 /**
  * Usage: <expression> | iif : trueValue : falseValue
@@ -62,7 +62,7 @@ myApp.factory('highlight', function() {
 /**
  * Returns the first round number that has 'normal' matches (= not just loser bracket matches)
  */
-function findFirstRound(data) {
+myApp.findFirstRound = function(data) {
 	for (var r = 0; r < data.length; r++) {
 		// Normal matches are on top, so we only need to check first match
 		if (data[r][0].meta.matchId.slice(-1) !== 'L') {
@@ -70,7 +70,7 @@ function findFirstRound(data) {
 		}
 	}
 	return null;
-}
+};
 
 /**
  * Contains all the necessary data that controllers need.
@@ -80,12 +80,12 @@ function findFirstRound(data) {
  *		 (See the demoApp controller for a sample)
  */
 myApp.factory('data', function() {
-	var participantData = {};
+	var teamsData = {};
 	var tournamentData = {};
 	var firstRound = null;
 	return {
-		getParticipants: function() {
-			return participantData;
+		getTeams: function() {
+			return teamsData;
 		},
 		getMatches: function() {
 			return tournamentData.matches;
@@ -95,6 +95,59 @@ myApp.factory('data', function() {
 		},
 		getProperties: function() {
 			return tournamentData.properties;
+		},
+		shuffleTeams: function() {
+			if (!teamsData || !tournamentData || tournamentData.properties.status != 'Not started') {
+				return;
+			}
+
+			var currentIndex = teamsData.length,
+				temporaryValue, randomIndex;
+			var shuffled = teamsData.slice();
+
+			// While there remain elements to shuffle...
+			while (0 !== currentIndex) {
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+				temporaryValue = shuffled[currentIndex];
+				shuffled[currentIndex] = shuffled[randomIndex];
+				shuffled[randomIndex] = temporaryValue;
+			}
+
+			var i, j = 0;
+			if (this.getTournamentType() === 'DE' && firstRound === null) {
+				firstRound = angular.module('ngBracket').findFirstRound(tournamentData.matches);
+			}
+
+			var round = this.getTournamentType() === 'DE' ? firstRound : 0;
+			// Apply shuffled order to matches
+			for (i = 0; i < tournamentData.matches[round].length; i++) {
+				if (tournamentData.matches[round][i].meta.matchId.slice(-1) === 'L') {
+					break;
+				}
+
+				tournamentData.matches[round][i].team1.id = shuffled[j].id;
+				tournamentData.matches[round][i].team2.id = shuffled[j + 1].id;
+				j += 2;
+			}
+
+			if (tournamentData.properties.unbalanced) {
+				round += 1;
+				for (i = 0; i < tournamentData.matches[round].length; i++) {
+					if (j >= shuffled.length || tournamentData.matches[round][i].meta.matchId.slice(-1) === 'L') {
+						break;
+					}
+
+					if (tournamentData.matches[round][i].meta.matchType === 1) {
+						tournamentData.matches[round][i].team1.id = shuffled[j].id;
+						j += 1;
+					} else if (tournamentData.matches[round][i].meta.matchType === 2) {
+						tournamentData.matches[round][i].team1.id = shuffled[j].id;
+						tournamentData.matches[round][i].team2.id = shuffled[j + 1].id;
+						j += 2;
+					}
+				}
+			}
 		},
 		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {
 			function promoteToMatch(nextMatch, teamId, oldValues, first) {
@@ -135,6 +188,10 @@ myApp.factory('data', function() {
 						return x;
 					}
 				}
+			}
+
+			if(tournamentData.properties.status === 'Not started'){
+				tournamentData.properties.status = 'In progress';
 			}
 
 			var b = match.meta.matchId.split('-');
@@ -220,10 +277,10 @@ myApp.factory('data', function() {
 				}
 			}
 		},
-		loadTournament: function(tData, participants) {
-			participantData = participants;
+		loadTournament: function(tData, teams) {
+			teamsData = teams;
 			tournamentData = tData;
-			firstRound = tData.type === 'DE' ? findFirstRound(tData.matches) : null;
+			firstRound = tData.type === 'DE' ? angular.module('ngBracket').findFirstRound(tData.matches) : null;
 		}
 	};
 });
@@ -326,7 +383,7 @@ myApp.factory('positioningService', ['data',
 
 			if (data.getTournamentType() === 'DE') {
 				var m = data.getMatches();
-				var fr = findFirstRound(m);
+				var fr = angular.module('ngBracket').findFirstRound(m);
 
 				if (fr) {
 					properties.startingRound = fr + 1;
@@ -371,58 +428,157 @@ myApp.factory('positioningService', ['data',
 ]);
 
 /**
- * Provides details view into selected match.
- * Can be disabled with 'setEnabled' function, or by not having detail element with 'detailOverlay' Id at all.
- **/
-myApp.factory('matchDetailService', function() {
-	var detailContainer = null;
-	var matchDetails = {};
-	var prevShowedMatchId = '';
-	var init = false;
-	var isEnabled = false;
+ * Common functions for dialog windows.
+ *
+ * show: Toggles given dialog element visible and positions it next to given target element.
+ *	params: dialog 	 - the dialog element to show
+ *			targetEl - element to align dialog with
+ *			offsetX	 - additional horizontal offset (optional)
+ *			offsetY  - additional vertical offset (optional)
+ *			align	 - true/false flag to disable default positioning next to target element
+ */
+myApp.factory('dialogServiceBase', function() {
 	return {
-		setEnabled: function(enabled) {
-			isEnabled = enabled;
-		},
-		mapMatchDetails: function() {
-			return matchDetails;
-		},
-		showDetails: function(matchElement, details) {
-			if (!isEnabled) {
-				return;
-			}
-			// Toggle closed
-			if (detailContainer !== null && detailContainer.css('visibility') == 'visible' && details.matchId == prevShowedMatchId) {
-				this.hideDetails();
-				return;
-			}
-			prevShowedMatchId = details.matchId;
-			matchDetails.team1Details = details.team1Details;
-			matchDetails.team2Details = details.team2Details;
-			matchDetails.results = details.results;
-
-			if (!init) {
-				detailContainer = angular.element(document.getElementById('detailOverlay'));
-				init = true;
-			}
-			if (detailContainer !== null && matchElement !== null) {
-				var targetEl = findParentByAttribute(matchElement, 'class', 'match')[0];
-
-				if (targetEl !== null && targetEl.getBoundingClientRect()) {
+		show: function(dialog, targetEl, offsetX, offsetY, align) {
+			if (dialog !== null) {
+				if (align && targetEl !== null && targetEl.getBoundingClientRect()) {
 					var div = targetEl.getBoundingClientRect();
 					var offsetLeft = div.right + ((window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft);
 					var offsetTop = div.top + ((window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop);
+					var targetHeight = div.height;
+					var dialogHeight = dialog[0].getBoundingClientRect().height;
 
-					detailContainer.css('left', offsetLeft + 'px');
-					detailContainer.css('top', (offsetTop - 20) + 'px');
-					detailContainer.css('visibility', 'visible');
+					offsetTop += (dialogHeight > targetHeight) ? (dialogHeight / -2) + (targetHeight / 2) : (targetHeight / 2) - (dialogHeight / 2);
+
+					dialog.css('left', (offsetLeft + offsetX) + 'px');
+					dialog.css('top', (offsetTop + offsetY) + 'px');
 				}
+
+				dialog.css('visibility', 'visible');
 			}
 		},
-		hideDetails: function() {
-			if (detailContainer !== null) {
-				detailContainer.css('visibility', 'hidden');
+		hide: function(dialog) {
+			if (dialog !== null) {
+				dialog.css('visibility', 'hidden');
 			}
 		}
 	};
 });
+
+myApp.createCloseOnEscEventHandler = function(callbackObj, callback){
+	return function(callbackObj, callback){
+		return function(event) {
+			if(event.keyCode === 27){
+				callback.call(callbackObj);
+			}
+		};
+	}(callbackObj, callback);
+};
+
+/**
+ * Provides details view into selected match.
+ * Can be disabled with 'setEnabled' function, or by not having detail element with 'detailOverlay' Id at all.
+ **/
+myApp.factory('matchDetailService', ['dialogServiceBase', '$document',
+	function(dialogService, $document) {
+		var detailContainer = null;
+		var matchDetails = {};
+		var prevShowedMatchId = '';
+		var init = false;
+		var isEnabled = false;
+		var handleKeyUpEvent = null;
+		return {
+			setEnabled: function(enabled) {
+				isEnabled = enabled;
+			},
+			mapMatchDetails: function() {
+				return matchDetails;
+			},
+			show: function(matchElement, details, align) {
+				handleKeyUpEvent = angular.module('ngBracket').createCloseOnEscEventHandler(this, this.hide);
+
+				if (!isEnabled) {
+					return;
+				}
+				// Toggle closed
+				if (detailContainer !== null && detailContainer.css('visibility') == 'visible' && details.matchId == prevShowedMatchId) {
+					this.hide();
+					return;
+				}
+				prevShowedMatchId = details.matchId;
+				matchDetails.team1Details = details.team1Details;
+				matchDetails.team2Details = details.team2Details;
+				matchDetails.results = details.results;
+
+				if (!init) {
+					detailContainer = angular.element(document.getElementById('detailOverlay'));
+					init = true;
+				}
+				if (detailContainer !== null && matchElement !== null) {
+					var targetEl = angular.module('ngBracket').findParentByAttribute(matchElement, 'class', 'match')[0];
+					$document.unbind('keyup', handleKeyUpEvent).bind('keyup', handleKeyUpEvent);
+					dialogService.show(detailContainer, targetEl, 0, 0, align);
+				}
+			},
+			hide: function() {
+				$document.unbind('keyup', handleKeyUpEvent);
+				handleKeyUpEvent = null;
+				dialogService.hide(detailContainer);
+			}
+		};
+	}
+]);
+
+/*
+* Service to show/hide team selection menu
+*/
+myApp.factory('teamSelectService', ['dialogServiceBase', 'data', '$document',
+	function(dialogService, data, $document) {
+		var teamSelectDialog = null;
+		var targetTeamslot = null;
+		var handleKeyUpEvent = null;
+		var handleClickEvent = null;
+		return {
+			show: function(matchElement, teamslot, align) {
+				handleKeyUpEvent = angular.module('ngBracket').createCloseOnEscEventHandler(this, this.hide);
+
+				handleClickEvent = function(callbackObj, hide) {
+					return function(event) {
+						if (event.button !== 2 && angular.module('ngBracket').findParentByAttribute(event.target, 'id', 'selectTeamOverlay') === null) {
+							hide.call(callbackObj);
+						}
+					};
+				}(this, this.hide);
+
+				if (data.getProperties().status !== 'Not started') {
+					return;
+				}
+				if (teamSelectDialog === null) {
+					teamSelectDialog = angular.element(document.getElementById('selectTeamOverlay'));
+				}
+				if (teamSelectDialog !== null) {
+					$document.unbind('keyup', handleKeyUpEvent).bind('keyup', handleKeyUpEvent);
+					$document.unbind('click', handleClickEvent).bind('click', handleClickEvent);
+
+					targetTeamslot = teamslot;
+					dialogService.show(teamSelectDialog, matchElement, 0, 0, align);
+				}
+			},
+			hide: function() {
+				targetTeamslot = null;
+				if (teamSelectDialog !== null) {
+					$document.unbind('keyup', handleKeyUpEvent);
+					$document.unbind('click', handleClickEvent);
+					handleKeyUpEvent = null;
+					handleClickEvent = null;
+					dialogService.hide(teamSelectDialog);
+				}
+			},
+			select: function(team) {
+				if (targetTeamslot !== null) {
+					targetTeamslot.id = team.id;
+				}
+			}
+		};
+	}
+]);

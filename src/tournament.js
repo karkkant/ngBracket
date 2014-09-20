@@ -4,7 +4,7 @@
 * params:
 * 	type: 'SE' for Single elimination
 *		  'DE' for Double elimination
-* 	participants: Array of players/participants
+* 	teams: Array of players/teams
 * 	playBronzeMatch: True or False if bronze match is wanted
 *
 * Match types: 1 = Match where one player is promoted from round1 to round2. That is, instead of 2, there is 3 players fighting over one slot.
@@ -12,7 +12,7 @@
 **/
 myApp.factory('tournament', function(){
 	return {
-		newTournament: function(ttype, participants, playBronzeMatch){
+		newTournament: function(ttype, teams, playBronzeMatch){
 
 			function createMatch(roundNumber, matchNumber){
 				return {team1:{id:"", score:""},
@@ -22,10 +22,10 @@ myApp.factory('tournament', function(){
 					};
 			}
 
-			function getEvenDistribution(roundLength, participantsLength, promotedRound){
+			function getEvenDistribution(roundLength, numberOfTeams, promotedRound){
 				var dist = [];
-				var x = promotedRound ? (2*roundLength) - participantsLength : participantsLength;
-				var step = promotedRound ? roundLength/(Math.abs((2*roundLength)-participantsLength)): roundLength / participantsLength;			
+				var x = promotedRound ? (2*roundLength) - numberOfTeams : numberOfTeams;
+				var step = promotedRound ? roundLength/(Math.abs((2*roundLength)-numberOfTeams)): roundLength / numberOfTeams;			
 
 				for(var i=0;i<roundLength;i++){
 					dist[i] = promotedRound ? 2 : 0;
@@ -39,7 +39,7 @@ myApp.factory('tournament', function(){
 				return dist;
 			}		
 
-			function generateRound(participants, roundNumber, tournamentData){
+			function generateRound(teams, roundNumber, tournamentData){
 
 				function shiftPreviousRound(currentRound, previousRound){
 					var x = 0;
@@ -62,22 +62,22 @@ myApp.factory('tournament', function(){
 
 				if(roundNumber === 1){
 					// find the closest balanced tree
-					while(closestBalancedTree*2 < participants.length){
+					while(closestBalancedTree*2 < teams.length){
 						closestBalancedTree *= 2;
 					}
 					// closestBalancedTree / 2 is the target for round 2
-					var excessParticipants = participants.length - closestBalancedTree;
+					var excessParticipants = teams.length - closestBalancedTree;
 
 					if(excessParticipants > 0){
 						shiftedMatches = excessParticipants - (closestBalancedTree / 2);
 						var startIndex = shiftedMatches === 0 ? closestBalancedTree : ((shiftedMatches > 0) ? closestBalancedTree + (shiftedMatches*2) : closestBalancedTree - (Math.abs(shiftedMatches)*2));
-						balancingRound = participants.slice(startIndex, participants.length);
-						participants.splice(startIndex, participants.length);
+						balancingRound = teams.slice(startIndex, teams.length);
+						teams.splice(startIndex, teams.length);
 					}
 				}
 				
-				// Loop through participants / previous round matches and create following match
-				for(i=0; i < participants.length; i++){
+				// Loop through teams / previous round matches and create following match
+				for(i=0; i < teams.length; i++){
 					match = createMatch(roundNumber, round.length + 1);
 
 					if(roundNumber === 1){
@@ -85,8 +85,8 @@ myApp.factory('tournament', function(){
 						if(i % 2 !== 0){
 							continue;
 						}
-						match.team1.id = participants[i].id;
-						match.team2.id = participants[i+1].id;
+						match.team1.id = teams[i].id;
+						match.team2.id = teams[i+1].id;
 					}
 					else if(i % 2 !== 0){ 
 						continue; 
@@ -143,10 +143,10 @@ myApp.factory('tournament', function(){
 						}
 					}
 
-					participants = null;
+					teams = null;
 					return roundB;
 				}
-				participants = null;
+				teams = null;
 
 				return round;
 			}
@@ -293,11 +293,11 @@ myApp.factory('tournament', function(){
 			var tournamentData = {
 				type: ttype,
 				matches: [],
-				properties: {}
+				properties: { status: 'Not started' }
 			};
 
-			// Got to have at least 4 participants
-			if(participants.length < 3){
+			// Got to have at least 4 teams
+			if(teams.length < 3){
 				return tournamentData;
 			}			
 
@@ -310,7 +310,7 @@ myApp.factory('tournament', function(){
 				var partic = previousRound;
 
 				if(roundNumber === 1){
-					partic = participants.slice();
+					partic = teams.slice();
 				}
 
 				previousRound = generateRound(partic, roundNumber, tournamentData); 

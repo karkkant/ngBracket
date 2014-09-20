@@ -1,79 +1,151 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
-	<!-- <script type="text/javascript" src="dist/ngBracket.min.js"></script> -->
- 	<script type="text/javascript" src="src/services.js"></script>
-	<script type="text/javascript" src="src/match.js"></script>
-	<script type="text/javascript" src="src/tournament.js"></script> 
-	<script type="text/javascript" src="src/demoApp.js"></script>
-	<link rel="stylesheet" type="text/css" href="styles/bracket.css">
-</head>
-<body ng-app="ngBracket" ng-controller="bracketController">
-	<span>Flag is optional. Supported choices for the demo: aut, can, chi, cze, den, est, fin, fra, ger, rus, sui, swe, uk, usa</span><br/><br/>
-	<span>Type: </span>
-	<select ng-init="tType='SE'" ng-model="tType">
-	<option value="SE">Single Elimination</option>
-	<option value="DE">Double Elimination</option>
-	</select><br/>
-	<span>Name:</span><input type="text" ng-model="newPlayerName"/>
-	<span>Flag:</span><input type="text" ng-model="newPlayerFlag"/>
-	<button ng-click="addPlayer()">Add</button>
-	<button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
-	<button ng-click="loadTournament('SE')">Load SE sample</button>
-	<button ng-click="loadTournament('DE')">Load DE sample</button>
-	<input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=false" ng-model="enableDetails">Show match details</input><br/>
-	<span>Generate bracket with number of players:</span><input type="text" ng-model="playersToGenerate"/><button ng-click="generateWithRandomPlayers()">Generate</button><input type="checkbox" ng-init="playBronzeMatch=true" ng-model="playBronzeMatch">Play bronze match</input><br/>
-	<div ng-cloak class="ngBracket" id="bracketRoot"
-		ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
-	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
-		<div ng-repeat="m in tournamentData.matches" class="round" id="round-{{$index+1}}" >
-			<div class="roundHeader">
-				<span ng-if="tournamentData.type === 'SE'" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
-				<span ng-if="tournamentData.type === 'DE' && $index+1 >= startingRound" ng-init="rn=(!startingRound || startingRound==1) ? $index+1 : $index+2-startingRound" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
-			</div>
-			<div class="matchWrapper" ng-repeat="match in m" id="{{match.meta.matchId}}">
-				<match></match>
-				<connectors></connectors>				
-			</div>
-		</div>
-	</div>
-	<br/>
-	<div style="float:left">
-		<span><h2>Debug</h2></span>
-		<span><h3>tournamentData:</h3> {{ tournamentData }}</span>
-		<span><h3>players:</h3> {{ participants }}</span>
-	</div>
 
-	<!-- Detail overlay, safe to remove -->
-	<div id="detailOverlay" ng-cloak ng-model="matchToShow">
-		<img class="callout" src="images/arrow.gif" />
-		<div class="detailHeader">
-			<div class="flag" style="background-image:url(images/{{matchToShow.team1Details.flag}}.png)"></div>
-			<div class="scoreWrapper">
-				<div class="teamName">{{matchToShow.team1Details.name}}</div>
-				<div class="resultScore"><b>{{matchToShow.results.team1.score + " - " + matchToShow.results.team2.score }}</b></div>
-				<div class="teamName" style="text-align:right">{{matchToShow.team2Details.name}}</div>
-				<div class="bottomDivider" style="width:100%;float:left"></div>
-			</div>
-			<div class="flag" style="background-image:url(images/{{matchToShow.team2Details.flag}}.png)"></div>
-		</div>
-		<div class="teamDetail" id="team1">
-			<div class="teamMembers" ng-repeat="p in matchToShow.team1Details.members">
-				<span>{{p}}</span><br/>
-			</div>
-		</div>
-		<div class="teamDetail" id="team2">
-			<div class="teamMembers" ng-repeat="p in matchToShow.team2Details.members">
-				<span>{{p}}</span><br/>
-			</div>
-		</div>
-		<div class="detailFooter">
-			<div style="height:40px">Screenshots:<br/></div>
-			<div style="height:40px">Videos:<br/></div>
-		</div>
-	</div>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
+    <!-- <script type="text/javascript" src="refs/angular.js"></script> -->
+    <!-- <script type="text/javascript" src="dist/ngBracket.min.js"></script> -->
+    <script type="text/javascript" src="src/services.js"></script>
+    <script type="text/javascript" src="src/match.js"></script>
+    <script type="text/javascript" src="src/tournament.js"></script>
+    <script type="text/javascript" src="src/demoApp.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles/bracket.css">
+</head>
+
+<body ng-app="ngBracket" ng-controller="bracketController">
+
+    <br/>
+    <span>Type:</span>
+    <select ng-init="tType='SE'" ng-model="tType">
+        <option value="SE">Single Elimination</option>
+        <option value="DE">Double Elimination</option>
+    </select>
+    <input type="checkbox" ng-init="playBronzeMatch=true" ng-model="playBronzeMatch">Play bronze match</input>
+    <button ng-click="loadTournament('SE')">Load SE sample</button>
+    <button ng-click="loadTournament('DE')">Load DE sample</button>
+    <br/>
+    <br/>
+    <fieldset>
+        <legend>Create new</legend>
+        <span>Flag is optional. Supported choices for the demo: aut, can, chi, cze, den, est, fin, fra, ger, rus, sui, swe, uk, usa</span>
+        <br/>
+        <span>Add teams:</span>
+        <br/>
+        <span>Name:</span>
+        <input type="text" ng-model="newPlayerName" />
+        <span>Flag:</span>
+        <input type="text" ng-model="newPlayerFlag" />
+        <button ng-click="addPlayer()">Add</button>
+        <button ng-click="newTournament()" ng-disabled="participants.length < 3">Start</button>
+        <br/>
+        <span>Load players from JSON:</span>
+        <input type="text" ng-model="teamsJson" />
+        <button ng-click="loadTeams()">Load</button>
+        <br/>
+    </fieldset>
+    <br/>
+    <fieldset>
+        <legend>Create new with empty teams</legend>
+        <span>Number of teams:</span>
+        <input type="text" ng-model="playersToGenerate" />
+        <button ng-click="generateWithRandomPlayers()">Generate</button>
+    </fieldset>
+    <br/>
+    <span>Team editing:</span>
+    <ul>
+        <li>Works while team status is "Not started". That is untill first match is played.</li>
+        <li>DoubleClick on team to edit the name.</li>
+        <li>Right-click on the team to select different team</li>
+    </ul>
+    <br/>
+    <button ng-click="shuffleTeams()">Shuffle</button>
+    <input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=false" ng-model="enableDetails">Show match details (tick and click a match)</input>
+    <br/>
+
+
+    <div ng-cloak class="ngBracket" id="bracketRoot" ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
+	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
+        <div ng-repeat="m in tournamentData.matches" class="round" id="round-{{$index+1}}">
+            <div class="roundHeader">
+                <span ng-if="tournamentData.type === 'SE'" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+                <span ng-if="tournamentData.type === 'DE' && $index+1 >= startingRound" ng-init="rn=(!startingRound || startingRound==1) ? $index+1 : $index+2-startingRound" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
+            </div>
+            <div class="matchWrapper" ng-repeat="match in m" id="{{match.meta.matchId}}">
+                <match></match>
+                <connectors></connectors>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div style="float:left">
+        <span>
+            <h2>Debug</h2>
+        </span>
+        <span>
+            <h3>tournamentData:</h3>{{ tournamentData }}</span>
+        <span>
+            <h3>players:</h3>{{ teams }}</span>
+    </div>
+
+    <!-- Detail overlay, safe to remove -->
+    <div id="detailOverlay" ng-cloak ng-model="matchToShow">
+        <div class="detailHeader">
+            <div class="flag" style="background-image:url(images/{{matchToShow.team1Details.flag}}.png)"></div>
+            <div class="scoreWrapper">
+                <div class="teamName">{{matchToShow.team1Details.name}}</div>
+                <div class="resultScore"><b>{{matchToShow.results.team1.score + " - " + matchToShow.results.team2.score }}</b>
+                </div>
+                <div class="teamName" style="text-align:right">{{matchToShow.team2Details.name}}</div>
+                <div class="bottomDivider" style="width:100%;float:left"></div>
+            </div>
+            <div class="flag" style="background-image:url(images/{{matchToShow.team2Details.flag}}.png)"></div>
+        </div>
+        <div class="teamDetail" id="team1">
+            <div class="teamMembers" ng-repeat="p in matchToShow.team1Details.members">
+                <span>{{p}}</span>
+                <br/>
+            </div>
+        </div>
+        <div class="teamDetail" id="team2">
+            <div class="teamMembers" ng-repeat="p in matchToShow.team2Details.members">
+                <span>{{p}}</span>
+                <br/>
+            </div>
+        </div>
+        <div class="detailFooter">
+            <div style="height:40px">Screenshots:
+                <br/>
+            </div>
+            <div style="height:40px">Videos:
+                <br/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog for choosing a team -->
+    <div id="selectTeamOverlay" ng-cloak>
+        <div class="wrap">
+            <div id="teamSearch">
+                <div class="column">Search:</div>
+                <input type="text" ng-model="search">
+            </div>
+            <div class="headers">
+                <div class="id column">#</div>
+                <div class="flag column"></div>
+                <div class="name column">Team</div>
+            </div>
+
+            <div ng-repeat="t in teams | filter:search">
+                <div class="selectable" ng-click="onTeamSelected(t)">
+                    <div class="id column">{{t.id}}</div>
+                    <div class="flag column" style="background-image:url(images/{{t.flag}}.png)"></div>
+                    <div class="name column">{{t.name}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
+
 </html>
