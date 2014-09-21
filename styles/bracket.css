@@ -12,16 +12,19 @@ div.ngBracket .empty{background-color:#eee;cursor:default;font-size:14px;}
 div.ngBracket .loser{background-color:#d3d3d3;color:#b2b2b2;}
 div.ngBracket .loser .score{color:#B22222}
 div.ngBracket .winner{}
-div.ngBracket .teamname{margin-left:10px;vertical-align:middle;overflow:hidden;text-overflow:clip;}
-div.ngBracket .team input{max-width: 130px}
-div.ngBracket .team img{float:left;width:20px;height:19px;clear:both;}
+div.ngBracket .teamname{padding-left:5px;text-overflow:clip;white-space:nowrap;overflow:hidden;min-width:120px;max-width:125px;min-height:25px}
+input.team{max-width: 120px;max-height:15px;margin-left:5px;}
+/*div.ngBracket .team img{float:left;width:20px;height:19px;clear:both;}*/
 div.ngBracket .highlight{background-color:#eea}
-div.ngBracket .matchWrapper .separator{border-bottom:1px solid #aaa}
-div.ngBracket .score{float:right;font-weight:bold;background-color:#efefef;text-align:center;vertical-align:middle;line-height:23px;width:30px;height:100%;font-size:19px}
-input.score{font-weight:bold;text-align:center;vertical-align:middle;line-height:20px;max-width:25px;max-height:20px;border:1}
-input[type='number'] {-moz-appearance:textfield;}
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {-webkit-appearance: none;}
+div.ngBracket .matchWrapper .separator{border-bottom:1px solid #aaa; z-index:5}
+div.ngBracket .score{display:inline-block;float:right;font-weight:bold;background-color:#efefef;text-align:center;width:30px;height:25px;vertical-align:middle;}
+span.score{vertical-align: middle; font-size:20px;line-height: 24px}
+input.score{font-weight:bold;text-align:center;margin:0px;line-height:20px;font-size:16px;max-width:25px;max-height:20px;margin:0px;padding:0px;}
+input[type='number'] {-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; margin: 0; 
+}
 div.ngBracket .hidden{display:none;}
 
 div.ngBracket .flagContainer{float:left;width:35px;height:25px}

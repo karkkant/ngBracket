@@ -2,5 +2,6 @@
 	 ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length)), hidden:(prop.finals2 === false)}" 
 	 ng-click="showDetails($event)">
 	<team team="match.team1" teamdetails="team1Details" description="team1Description"></team>
+	<div ng-class="{separator: (match.team1.id.length > 0 && match.team2.id.length > 0)}"></div>
 	<team team="match.team2" teamdetails="team2Details" description="team2Description"></team>
 </div>

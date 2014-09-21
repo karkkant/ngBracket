@@ -1,5 +1,4 @@
 <div class="score" ng-click="editScore()" ng-init="status='uneditable'" ng-switch="status">
-	<input class="score" ng-switch-when="editable" ng-blur="endEditScore()" do-focus="" type="number" 
-	ng-model="team.score" ng-pattern="/^[0-9]+$/"></input>
+	<input class="score" ng-switch-when="editable" ng-blur="endEditScore()" do-focus="" type="number" ng-model="team.score" ng-pattern="/^[0-9]+$/"></input>
 	<span ng-class="{score:true, empty: (!team.id || 0 === team.id.length)}" ng-switch-when="uneditable">{{ team.score }}</span>
 </div>

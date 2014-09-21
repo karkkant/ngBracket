@@ -110,7 +110,7 @@ myApp.directive('team', ['data', 'highlight', 'teamSelectService',
         return {
             restrict: 'E',
             templateUrl: 'partials/team.html',
-            replace: false,
+            replace: true,
             scope: {
                 team: '=',
                 teamdetails: '=',
@@ -125,9 +125,9 @@ myApp.directive('team', ['data', 'highlight', 'teamSelectService',
                     highlight.setHighlight(teamId);
                 };
 
-                scope.editTeam = function(team, val) {
+                scope.editTeam = function() {
                     if (data.getProperties().status === 'Not started') {
-                        scope.status = val;
+                        scope.status = 'editable';
                     }
                 };
                 scope.endEditTeam = function() {
