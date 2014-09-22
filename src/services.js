@@ -190,7 +190,7 @@ myApp.factory('data', function() {
 				}
 			}
 
-			if(tournamentData.properties.status === 'Not started'){
+			if (tournamentData.properties.status === 'Not started') {
 				tournamentData.properties.status = 'In progress';
 			}
 
@@ -465,14 +465,12 @@ myApp.factory('dialogServiceBase', function() {
 	};
 });
 
-myApp.createCloseOnEscEventHandler = function(callbackObj, callback){
-	return function(callbackObj, callback){
-		return function(event) {
-			if(event.keyCode === 27){
-				callback.call(callbackObj);
-			}
-		};
-	}(callbackObj, callback);
+myApp.createCloseOnEscEventHandler = function(callbackObj, callback) {
+	return function(event) {
+		if (event.keyCode === 27) {
+			callback.call(callbackObj);
+		}
+	};
 };
 
 /**
@@ -530,8 +528,8 @@ myApp.factory('matchDetailService', ['dialogServiceBase', '$document',
 ]);
 
 /*
-* Service to show/hide team selection menu
-*/
+ * Service to show/hide team selection menu
+ */
 myApp.factory('teamSelectService', ['dialogServiceBase', 'data', '$document',
 	function(dialogService, data, $document) {
 		var teamSelectDialog = null;
