@@ -1,76 +1,135 @@
-div.ngBracket{font-family:Calibri;font-size:18px;position:relative;float:left;margin-top:20px}
-div.ngBracket #bracketRoot{clear:right;}
-div.ngBracket .round{position:relative;width:240px;height:100%;float:left}
-div.ngBracket .roundTitle{display:table;margin:0 auto;}
-/* header's max-height is required */
-div.ngBracket .roundHeader{margin-bottom:20px;max-height:20px;min-height:20px}
-/* Note! min-width and min-height are required. If you want to change team container size, remember to set min-height to match 2*team-height! */
-div.ngBracket .match{position:absolute;width:200px;min-width:200px;max-width;margin-bottom:20px;margin-right:40px;border-width:2px;border-style:solid;min-height:50px;max-height:50px;overflow:hidden;}
-div.ngBracket .tbd{border-color:#ddd;background-color:#f1f1f1;}
-div.ngBracket .team{height:25px;cursor:pointer;cursor:hand;}
-div.ngBracket .empty{background-color:#eee;cursor:default;font-size:14px;}
-div.ngBracket .loser{background-color:#d3d3d3;color:#b2b2b2;}
-div.ngBracket .loser .score{color:#B22222}
-div.ngBracket .winner{}
-div.ngBracket .teamname{padding-left:5px;text-overflow:clip;white-space:nowrap;overflow:hidden;min-width:120px;max-width:125px;min-height:25px}
-input.team{max-width: 120px;max-height:15px;margin-left:5px;}
-/*div.ngBracket .team img{float:left;width:20px;height:19px;clear:both;}*/
-div.ngBracket .highlight{background-color:#eea}
-div.ngBracket .matchWrapper .separator{border-bottom:1px solid #aaa; z-index:5}
-div.ngBracket .score{display:inline-block;float:right;font-weight:bold;background-color:#efefef;text-align:center;width:30px;height:25px;vertical-align:middle;}
-span.score{vertical-align: middle; font-size:20px;line-height: 24px}
-input.score{font-weight:bold;text-align:center;margin:0px;line-height:20px;font-size:16px;max-width:25px;max-height:20px;margin:0px;padding:0px;}
-input[type='number'] {-moz-appearance:textfield}
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; margin: 0; 
-}
-div.ngBracket .hidden{display:none;}
+div.ngBracket {
+  font-family: Calibri;
+  font-size: 18px;
+  position: relative;
+  float: left;
+  margin-top: 20px;
+  /* header's max-height is required */
+  /* Note! min-width and min-height are required */
+  /* Connector styles */ }
+  div.ngBracket #bracketRoot {
+    clear: right; }
+  div.ngBracket .round {
+    position: relative;
+    width: 240px;
+    height: 100%;
+    float: left; }
+  div.ngBracket .roundTitle {
+    display: table;
+    margin: 0 auto; }
+  div.ngBracket .roundHeader {
+    margin-bottom: 20px;
+    min-height: 20px;
+    max-height: 20px; }
+  div.ngBracket .match {
+    position: absolute;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    margin-bottom: 20px;
+    margin-right: 40px;
+    border-width: 2px;
+    border-style: solid;
+    min-height: 50px;
+    max-height: 50px;
+    overflow: hidden; }
+  div.ngBracket .tbd {
+    border-color: #ddd;
+    background-color: #f1f1f1; }
+  div.ngBracket .team {
+    height: 25px;
+    min-height: 25px;
+    max-height: 25px;
+    cursor: pointer;
+    cursor: hand; }
+  div.ngBracket .empty {
+    background-color: #eee;
+    cursor: default;
+    font-size: 14px; }
+  div.ngBracket .loser {
+    background-color: #d3d3d3;
+    color: #b2b2b2; }
+    div.ngBracket .loser .score {
+      color: #B22222; }
+  div.ngBracket .teamname {
+    display: inline-block;
+    padding-left: 5px;
+    text-overflow: clip;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 115px;
+    max-width: 115px;
+    min-height: 25px; }
+  div.ngBracket .teamInput {
+    width: 115px;
+    height: 15px;
+    line-height: 15px; }
+  div.ngBracket input.score {
+    font-weight: bold;
+    text-align: center;
+    line-height: 20px;
+    font-size: 16px;
+    width: 25px;
+    height: 20px;
+    margin: 0px;
+    padding: 0px; }
+  div.ngBracket .highlight {
+    background-color: #eea; }
+  div.ngBracket .matchWrapper .separator {
+    border-bottom: 1px solid #aaa;
+    z-index: 5; }
+  div.ngBracket .score {
+    display: inline-block;
+    float: right;
+    font-weight: bold;
+    background-color: #efefef;
+    text-align: center;
+    width: 30px;
+    height: 25px;
+    vertical-align: middle; }
+  div.ngBracket span .score {
+    vertical-align: middle;
+    font-size: 20px;
+    line-height: 24px; }
+  div.ngBracket input[type='number'] {
+    -moz-appearance: textfield; }
+  div.ngBracket input[type=number]::-webkit-inner-spin-button, div.ngBracket input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0; }
+  div.ngBracket .hidden {
+    display: none; }
+  div.ngBracket .flagContainer {
+    float: left;
+    width: 35px;
+    height: 25px; }
+  div.ngBracket .empty .flagContainer {
+    width: 5px; }
+  div.ngBracket .flag {
+    background: no-repeat;
+    height: 35px;
+    margin-left: -3px;
+    margin-top: -6px;
+    background-size: cover;
+    text-indent: -9999px;
+    z-index: 20; }
+  div.ngBracket .connector {
+    position: absolute; }
+  div.ngBracket .connectors {
+    border-color: #000;
+    z-index: 1; }
+    div.ngBracket .connectors .tbdB {
+      border-color: #f1f1f1;
+      z-index: -1;
+      position: absolute; }
+    div.ngBracket .connectors .highlight {
+      border-color: #0f0;
+      background-color: transparent;
+      z-index: 2; }
+  div.ngBracket .connectorBottom {
+    border-bottom: 2px solid; }
+  div.ngBracket .connectorLeft {
+    border-left: 2px solid; }
+  div.ngBracket .connectorTop {
+    border-top: 2px solid; }
 
-div.ngBracket .flagContainer{float:left;width:35px;height:25px}
-div.ngBracket .flag{background:no-repeat;height:35px;margin-left:-3px;margin-top:-6px;background-size:cover;text-indent:-9999px;z-index:20}
-div.ngBracket .empty .flagContainer{width:5px}
-
-/* Connector styles */
-div.ngBracket .connectors{border-color:#000;z-index:1}
-div.ngBracket .connector{position:absolute}
-div.ngBracket .connectors .tbdB{border-color:#f1f1f1;z-index:-1;position:absolute}
-div.ngBracket .connectors .highlight{border-color:#0f0;background-color:transparent;z-index:2}
-div.ngBracket .connectorBottom{border-bottom:2px solid}
-div.ngBracket .connectorLeft{border-left:2px solid}
-div.ngBracket .connectorTop{border-top:2px solid}
-
-/* Match details overlay styles */
-div#detailOverlay{visibility:hidden;z-index:19;margin-left:10px;width:440px;height:250px;line-height:16px;display:inline;position:absolute;color:#111;
-	border: 2px solid #98abdd;; background:#ECECFF;box-shadow: 10px 10px 5px #888888;}
-div#detailOverlay:after, div#detailOverlay:before { right: 100%; top: 50%; border: solid transparent; content: " "; height: 0; width: 0; position: absolute; pointer-events: none; } 
-div#detailOverlay:after { border-color: rgba(222, 222, 255, 0); border-right-color: #ECECFF; border-width: 10px; margin-top: -10px; } 
-div#detailOverlay:before { border-color: rgba(152, 171, 221, 0); border-right-color: #98abdd; border-width: 13px; margin-top: -13px; }
-div#detailOverlay .teamDetail{float:left;width:50%;text-align:center;}
-div#detailOverlay .scoreWrapper{float:left;width:300px;display:table;max-height:50px}
-div#detailOverlay .resultScore{float:left;width:60px;margin-left:auto;margin-right:auto;text-align:center;font-size:24px}
-div#detailOverlay .flag {float:left;background:no-repeat;height:50px;width:50px;background-size:cover;margin-right:10px;margin-left:10px;margin-top:5px;}
-div#detailOverlay .teamName{margin-left:10px;margin-right:10px;vertical-align:middle;float:left;text-align:left;width:100px;font-size:22px;text-transform:capitalize;font-variant:small-caps;overflow:hidden}
-.scoreWrapper:before, .bottomDivider:after {height: 2px;content:"";
-background: -moz-linear-gradient(left, rgba(0,0,0,0) 0%, rgba(147,147,147,1) 50%, rgba(0,0,0,0) 100%);
-background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(0,0,0,0)), color-stop(50%,rgba(147,147,147,1)), color-stop(100%,rgba(0,0,0,0)));
-background: -webkit-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
-background: -o-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
-background: -ms-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
-background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(147,147,147,1) 50%,rgba(0,0,0,0) 100%);
-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#00000000',GradientType=1);
-display:block;margin-bottom:10px;margin-top:10px;}
-.detailFooter{position:absolute;bottom:0px;width:100%;text-align:center;font-variant:small-caps;}
-
-/* Team select dialog */
-div#selectTeamOverlay {visibility:hidden;z-index:10000;position:absolute;margin-left:10px;background:#ECECFF;border:2px solid #98abdd;box-shadow:4px 4px 20px #000;}
-div#selectTeamOverlay .wrap{overflow-y:scroll;min-height:200px;max-height:200px;margin:5px;}
-div#selectTeamOverlay .column{display:inline-block;}
-div#selectTeamOverlay .id{width:20px;}
-div#selectTeamOverlay .flag{width:30px;height:25px;}
-div#selectTeamOverlay .name{width:150px;margin-left:5px;}
-div#selectTeamOverlay .selectable{height:30px;}
-div#selectTeamOverlay .selectable:hover{background-color:#408080;cursor:pointer;cursor:hand;}
-div#selectTeamOverlay:after, div#selectTeamOverlay:before { right: 100%; top: 50%; border: solid transparent; content: " "; height: 0; width: 0; position: absolute; pointer-events: none; } 
-div#selectTeamOverlay:after { border-color: rgba(222, 222, 255, 0); border-right-color: #ECECFF; border-width: 10px; margin-top: -10px; } 
-div#selectTeamOverlay:before { border-color: rgba(152, 171, 221, 0); border-right-color: #98abdd; border-width: 13px; margin-top: -13px; }
+/*# sourceMappingURL=bracket.css.map */

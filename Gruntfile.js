@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		clean: ['src/<%= pkg.name %>.js'],
+		clean: ['src/<%= pkg.name %>.js', 'styles/*.css.map'],
 		karma: {
 			unit: {
 				configFile: 'karma.conf.js'
@@ -48,7 +48,13 @@ module.exports = function(grunt) {
 				specs: ['test/**/*Spec.js'],
 				keepRunner: true
 			}
-
+		},
+		sass: {
+			dist: {
+				files: {
+					'styles/bracket.css': 'styles/bracket.scss'
+				}
+			}
 		}
 	});
 
@@ -58,7 +64,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-contrib-jasmine');
+	grunt.loadNpmTasks('grunt-contrib-sass');
 
 	grunt.registerTask('test', ['jshint', 'karma']);
-	grunt.registerTask('default', ['jshint', 'karma', 'concat', 'uglify', 'clean']);
+	grunt.registerTask('default', ['jshint', 'karma', 'sass', 'concat', 'uglify', 'clean']);
 }

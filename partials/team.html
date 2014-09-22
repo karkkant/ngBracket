@@ -3,7 +3,7 @@
 	<div class="flagContainer">
 		<div class="flag" style="background-image:url(images/{{teamdetails.flag}}.png)"></div>
 	</div>
-	<input class="team" ng-switch-when="editable" ng-blur="endEditTeam()" do-focus="" type="text" ng-model="teamdetails.name"></input>
+	<input class="teamInput" ng-switch-when="editable" ng-blur="endEditTeam()" do-focus="" type="text" ng-model="teamdetails.name"></input>
 	<score team="team" match="match" results="results"></score>
 	<span class="teamname" ng-switch-default team-select-menu ng-dblclick="editTeam()">{{ (description.length > 0 && !teamdetails.name) | iif : description : ((teamdetails.name.length === 0) | iif : '(No name)' : teamdetails.name) }}</span>
 </div>
