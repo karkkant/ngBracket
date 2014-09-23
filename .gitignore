@@ -1,3 +1,5 @@
 node_modules
 .grunt
 _SpecRunner.html
+styles/*.css.map
+.sass-cache

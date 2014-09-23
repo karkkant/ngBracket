@@ -1,7 +1,8 @@
 $fonts:Calibri;
  $matchWidth:200px;
  $matchHeight:50px;
- $roundMargin:40px;
+ $matchMarginH: 40px; // horizontal space between matches
+ $matchMarginV: 20px; // vertical space between matches
  $flagWidth:35px;
  $scoreWidth:30px;
  $teamNameWidth:($matchWidth - $flagWidth - $scoreWidth - 20px);
@@ -18,7 +19,7 @@ $fonts:Calibri;
 	}
 	.round {
 		position: relative;
-		width: $matchWidth + $roundMargin;
+		width: $matchWidth + $matchMarginH;
 		height: 100%;
 		float: left;
 	}
@@ -38,8 +39,8 @@ $fonts:Calibri;
 		width: $matchWidth;
 		min-width: $matchWidth;
 		max-width: $matchWidth;
-		margin-bottom: 20px;
-		margin-right: 40px;
+		margin-bottom: $matchMarginV;
+		margin-right: $matchMarginH;
 		border-width: 2px;
 		border-style: solid;
 		min-height: $matchHeight;
