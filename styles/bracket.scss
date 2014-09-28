@@ -1,8 +1,8 @@
 $fonts:Calibri;
  $matchWidth:200px;
  $matchHeight:50px;
- $matchMarginH: 40px; // horizontal space between matches
- $matchMarginV: 20px; // vertical space between matches
+ $matchMarginH:40px; // horizontal space between matches
+ $matchMarginV:20px; // vertical space between matches
  $flagWidth:35px;
  $scoreWidth:30px;
  $teamNameWidth:($matchWidth - $flagWidth - $scoreWidth - 20px);
@@ -63,13 +63,6 @@ $fonts:Calibri;
 		cursor: default;
 		font-size: 14px;
 	}
-	.loser {
-		background-color: #d3d3d3;
-		color: #b2b2b2;
-		.score {
-			color: #B22222;
-		}
-	}
 	.teamname {
 		display: inline-block;
 		padding-left: 5px;
@@ -79,6 +72,18 @@ $fonts:Calibri;
 		min-width: $teamNameWidth;
 		max-width: $teamNameWidth;
 		min-height: $teamHeight;
+	}
+	.team.empty {
+		.teamname{
+			max-width: $matchWidth - 10px;
+		}
+	}
+	.loser {
+		background-color: #d3d3d3;
+		color: #b2b2b2;
+		.score {
+			color: #B22222;
+		}
 	}
 	.teamInput {
 		width: $teamNameWidth;

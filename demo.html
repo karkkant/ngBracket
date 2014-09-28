@@ -7,14 +7,14 @@
     <!-- <script type="text/javascript" src="refs/angular.js"></script> -->
     <!-- <script type="text/javascript" src="dist/ngBracket.min.js"></script> -->
     <script type="text/javascript" src="src/services.js"></script>
-    <script type="text/javascript" src="src/match.js"></script>
-    <script type="text/javascript" src="src/tournament.js"></script>
-    <script type="text/javascript" src="src/demoApp.js"></script>
+    <script type="text/javascript" src="src/bracket.js"></script>
+    <script type="text/javascript" src="src/tournamentGenerator.js"></script>
+    <script type="text/javascript" src="demo/demoApp.js"></script>
     <link rel="stylesheet" type="text/css" href="styles/bracket.css" />
-    <link rel="stylesheet" type="text/css" href="styles/demo.css" />
+    <link rel="stylesheet" type="text/css" href="demo/demo.css" />
 </head>
 
-<body ng-app="ngBracket" ng-controller="bracketController">
+<body ng-app="demoApp" ng-controller="bracketController">
 
     <br/>
     <span>Type:</span>
@@ -61,55 +61,34 @@
     </ul>
     <br/>
     <button ng-click="shuffleTeams()">Shuffle</button>
-    <input type="checkbox" ng-change="showDetails()" ng-init="enableDetails=false" ng-model="enableDetails">Show match details (tick and click a match)</input>
+    <input type="checkbox" ng-change="setEnableDetails()" ng-init="enableDetails=false" ng-model="enableDetails">Show match details (tick and click a match)</input>
     <br/>
 
+    <!-- Bracket control -->
+    <ngbracket bracket-data="bracketData"></ngbracket>
 
-    <div ng-cloak class="ngBracket" id="bracketRoot" ng-style="{'width': (tournamentData.matches.length > 0 | iif : calculateRoundWidth() : 0) + 'px',
-	 	'height': (tournamentData.matches.length > 0 | iif : calculateRoundHeight() : 0) + 'px'}">
-        <div ng-repeat="m in tournamentData.matches" class="round" id="round-{{$index+1}}">
-            <div class="roundHeader">
-                <span ng-if="tournamentData.type === 'SE'" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
-                <span ng-if="tournamentData.type === 'DE' && $index+1 >= startingRound" ng-init="rn=(!startingRound || startingRound==1) ? $index+1 : $index+2-startingRound" class="roundTitle">{{ ($index+1 == tournamentData.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
-            </div>
-            <div class="matchWrapper" ng-repeat="match in m" id="{{match.meta.matchId}}">
-                <match></match>
-                <connectors></connectors>
-            </div>
-        </div>
-    </div>
-    <br/>
-    <div style="float:left">
-        <span>
-            <h2>Debug</h2>
-        </span>
-        <span>
-            <h3>tournamentData:</h3>{{ tournamentData }}</span>
-        <span>
-            <h3>players:</h3>{{ teams }}</span>
-    </div>
 
-    <!-- Detail overlay, safe to remove -->
+    <!-- Match details dialog -->
     <div id="detailOverlay" ng-cloak ng-model="matchToShow">
         <div class="detailHeader">
-            <div class="flag" style="background-image:url(images/{{matchToShow.team1Details.flag}}.png)"></div>
+            <div class="flag" style="background-image:url(demo/images/{{matchToShow.team1.flag}})"></div>
             <div class="scoreWrapper">
-                <div class="teamName">{{matchToShow.team1Details.name}}</div>
+                <div class="teamName">{{matchToShow.team1.name}}</div>
                 <div class="resultScore"><b>{{matchToShow.results.team1.score + " - " + matchToShow.results.team2.score }}</b>
                 </div>
-                <div class="teamName" style="text-align:right">{{matchToShow.team2Details.name}}</div>
+                <div class="teamName" style="text-align:right">{{matchToShow.team2.name}}</div>
                 <div class="bottomDivider" style="width:100%;float:left"></div>
             </div>
-            <div class="flag" style="background-image:url(images/{{matchToShow.team2Details.flag}}.png)"></div>
+            <div class="flag" style="background-image:url(demo/images/{{matchToShow.team2.flag}})"></div>
         </div>
         <div class="teamDetail" id="team1">
-            <div class="teamMembers" ng-repeat="p in matchToShow.team1Details.members">
+            <div class="teamMembers" ng-repeat="p in matchToShow.team1.members">
                 <span>{{p}}</span>
                 <br/>
             </div>
         </div>
         <div class="teamDetail" id="team2">
-            <div class="teamMembers" ng-repeat="p in matchToShow.team2Details.members">
+            <div class="teamMembers" ng-repeat="p in matchToShow.team2.members">
                 <span>{{p}}</span>
                 <br/>
             </div>
@@ -124,7 +103,7 @@
         </div>
     </div>
 
-    <!-- Dialog for choosing a team -->
+    <!-- Team selection dialog -->
     <div id="selectTeamOverlay" ng-cloak>
         <div class="wrap">
             <div id="teamSearch">
@@ -137,14 +116,29 @@
                 <div class="name column">Team</div>
             </div>
 
-            <div ng-repeat="t in teams | filter:search">
-                <div class="selectable" ng-click="onTeamSelected(t)">
+            <div ng-repeat="t in bracketData.teams | filter:search">
+                <div class="selectable" ng-click="selectTeam(t)">
                     <div class="id column">{{t.id}}</div>
-                    <div class="flag column" style="background-image:url(images/{{t.flag}}.png)"></div>
+                    <div class="flag column" style="background-image:url(demo/images/{{t.flag}})"></div>
                     <div class="name column">{{t.name}}</div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <br/>
+    <div style="float:left">
+        <span>
+            <h2>Debug</h2>
+        </span>
+        <span>
+            <h3>tournament:</h3>
+            {{ bracketData.tournament }}
+        </span>
+        <span>
+            <h3>teams:</h3>
+            {{ bracketData.teams }}
+        </span>
     </div>
 
 </body>

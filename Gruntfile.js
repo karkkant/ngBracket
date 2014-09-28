@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 				separator: ';'
 			},
 			dist: {
-				src: ['src/services.js', 'src/match.js', 'src/tournament.js'],
+				src: ['src/services.js', 'src/bracket.js', 'src/tournamentGenerator.js'],
 				dest: 'src/<%= pkg.name %>.js'
 			}
 		},
@@ -41,8 +41,8 @@ module.exports = function(grunt) {
 				'refs/angular.js',
 				'refs/angular-mocks.js',
 				'src/services.js',
-				'src/match.js',
-				'src/tournament.js'
+				'src/bracket.js',
+				'src/tournamentGenerator.js'
 			],
 			options: {
 				specs: ['test/**/*Spec.js'],

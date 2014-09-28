@@ -46,11 +46,6 @@ div.ngBracket {
     background-color: #eee;
     cursor: default;
     font-size: 14px; }
-  div.ngBracket .loser {
-    background-color: #d3d3d3;
-    color: #b2b2b2; }
-    div.ngBracket .loser .score {
-      color: #B22222; }
   div.ngBracket .teamname {
     display: inline-block;
     padding-left: 5px;
@@ -60,6 +55,13 @@ div.ngBracket {
     min-width: 115px;
     max-width: 115px;
     min-height: 25px; }
+  div.ngBracket .team.empty .teamname {
+    max-width: 190px; }
+  div.ngBracket .loser {
+    background-color: #d3d3d3;
+    color: #b2b2b2; }
+    div.ngBracket .loser .score {
+      color: #B22222; }
   div.ngBracket .teamInput {
     width: 115px;
     height: 15px;

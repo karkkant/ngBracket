@@ -12,8 +12,8 @@ module.exports = function(config) {
             'refs/angular.js',
             'refs/angular-mocks.js',
             'src/services.js',
-            'src/match.js',
-            'src/tournament.js',
+            'src/bracket.js',
+            'src/tournamentGenerator.js',
             'test/*.js',
             'partials/*.html'
         ],

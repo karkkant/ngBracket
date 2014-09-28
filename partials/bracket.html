@@ -1,0 +1,13 @@
+<!-- Bracket control -->
+<div ng-cloak class="ngBracket" id="bracketRoot" ng-style="layoutProperties.bracket">
+    <div ng-repeat="m in bracketData.tournament.matches" class="round" id="round-{{$index+1}}" on-begin-render>
+        <div class="roundHeader">
+            <span ng-if="bracketData.tournament.type === 'SE'" class="roundTitle">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+            <span ng-if="bracketData.tournament.type === 'DE' && $index+1 >= layoutProperties.startingRound" ng-init="rn=(!layoutProperties.startingRound || layoutProperties.startingRound == 1) ? $index + 1 : $index + 2 - layoutProperties.startingRound" class="roundTitle">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
+        </div>
+        <div class="matchWrapper" ng-repeat="match in m" id="{{ match.meta.matchId }}">
+            <match></match>
+            <connectors></connectors>
+        </div>
+    </div>
+</div>

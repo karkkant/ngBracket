@@ -1,16 +1,23 @@
 /**
-* Tournament generator as a service. Generates new Single elimination or Double elimination tournament bracket.
+* Service to generates new Single elimination or Double elimination bracket.
 *
-* params:
-* 	type: 'SE' for Single elimination
-*		  'DE' for Double elimination
-* 	teams: Array of players/teams
-* 	playBronzeMatch: True or False if bronze match is wanted
+* newtournament:
+*	  params:
+*	 	ttype: 'SE' for Single elimination
+*			   'DE' for Double elimination
+*	 	teams: Array of players/teams
+*	 	playBronzeMatch: True or False
 *
 * Match types: 1 = Match where one player is promoted from round1 to round2. That is, instead of 2, there is 3 players fighting over one slot.
 * 			   2 = A full round 1 match promoted to round 2.
+*
+*
+* shuffle: Re-rolls teams randomly in given tournament data structure. 
+*	params:
+*		data: Tournament data structure.
 **/
-myApp.factory('tournament', function(){
+angular.module('ngBracket')
+.factory('tournamentGenerator', function(){
 	return {
 		newTournament: function(ttype, teams, playBronzeMatch){
 
@@ -500,6 +507,56 @@ myApp.factory('tournament', function(){
 			}
 
 			return tournamentData;
+		},
+		shuffle: function(data) {
+			if (!data || !data.teams || !data.tournament || data.tournament.properties.status != 'Not started') {
+				return;
+			}
+
+			var tournament = data.tournament;
+			var currentIndex = data.teams.length, temporaryValue, randomIndex;
+			var shuffled = data.teams.slice();
+
+			// While there remain elements to shuffle...
+			while (0 !== currentIndex) {
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+				temporaryValue = shuffled[currentIndex];
+				shuffled[currentIndex] = shuffled[randomIndex];
+				shuffled[randomIndex] = temporaryValue;
+			}
+
+			var i, j = 0;
+			var round = tournament.type === 'DE' ? angular.module('ngBracket').findFirstRound(tournament.matches) : 0;
+
+			// Apply shuffled order to matches
+			for (i = 0; i < tournament.matches[round].length; i++) {
+				if (tournament.matches[round][i].meta.matchId.slice(-1) === 'L') {
+					break;
+				}
+
+				tournament.matches[round][i].team1.id = shuffled[j].id;
+				tournament.matches[round][i].team2.id = shuffled[j + 1].id;
+				j += 2;
+			}
+
+			if (tournament.properties.unbalanced) {
+				round += 1;
+				for (i = 0; i < tournament.matches[round].length; i++) {
+					if (j >= shuffled.length || tournament.matches[round][i].meta.matchId.slice(-1) === 'L') {
+						break;
+					}
+
+					if (tournament.matches[round][i].meta.matchType === 1) {
+						tournament.matches[round][i].team1.id = shuffled[j].id;
+						j += 1;
+					} else if (tournament.matches[round][i].meta.matchType === 2) {
+						tournament.matches[round][i].team1.id = shuffled[j].id;
+						tournament.matches[round][i].team2.id = shuffled[j + 1].id;
+						j += 2;
+					}
+				}
+			}
 		}
 	};
 });

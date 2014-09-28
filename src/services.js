@@ -1,6 +1,9 @@
-var myApp = angular.module('ngBracket', []);
+var app = angular.module('ngBracket', []);
 
-myApp.findParentByAttribute = function(el, attr, value) {
+/*
+* Finds nearest parent with given attribute and value
+*/
+app.findParentByAttribute = function(el, attr, value) {
 	if (el === null || attr === null || value === null) {
 		return null;
 	}
@@ -22,7 +25,7 @@ myApp.findParentByAttribute = function(el, attr, value) {
  * Usage: <expression> | iif : trueValue : falseValue
  * Example: {{ team1.score > team2.score | iif : team1.name : team2.name }}
  */
-myApp.filter('iif', function() {
+app.filter('iif', function() {
 	return function(input, trueValue, falseValue) {
 		return input ? trueValue : falseValue;
 	};
@@ -31,7 +34,7 @@ myApp.filter('iif', function() {
 /**
  * Filter to find player by Id.
  */
-myApp.filter('getById', function() {
+app.filter('getById', function() {
 	return function(input, id) {
 		for (var i = 0; i < input.length; i++) {
 			if (input[i].id == id) {
@@ -42,27 +45,10 @@ myApp.filter('getById', function() {
 	};
 });
 
-/*
- * Service that keeps track of a team to highlight through bracket.
- */
-myApp.factory('highlight', function() {
-	var highlight = {
-		teamId: null
-	};
-	return {
-		mapHighlight: function() {
-			return highlight;
-		},
-		setHighlight: function(teamId) {
-			highlight.teamId = (teamId && teamId.length > 0) ? teamId : null;
-		}
-	};
-});
-
 /**
  * Returns the first round number that has 'normal' matches (= not just loser bracket matches)
  */
-myApp.findFirstRound = function(data) {
+app.findFirstRound = function(data) {
 	for (var r = 0; r < data.length; r++) {
 		// Normal matches are on top, so we only need to check first match
 		if (data[r][0].meta.matchId.slice(-1) !== 'L') {
@@ -73,81 +59,26 @@ myApp.findFirstRound = function(data) {
 };
 
 /**
- * Contains all the necessary data that controllers need.
- * Returns copy of data when requested.
- *
- * NOTE: Remember to call PositioningService.resetProperties when loading new tournament.
- *		 (See the demoApp controller for a sample)
+ * Contains the tournament data.
  */
-myApp.factory('data', function() {
-	var teamsData = {};
-	var tournamentData = {};
+app.factory('data', function() {
+	var tData = null;
 	var firstRound = null;
 	return {
 		getTeams: function() {
-			return teamsData;
+			return tData.teams;
 		},
 		getMatches: function() {
-			return tournamentData.matches;
+			return tData.tournament.matches;
 		},
 		getTournamentType: function() {
-			return tournamentData.type;
+			return tData.tournament.type;
 		},
 		getProperties: function() {
-			return tournamentData.properties;
+			return tData.tournament.properties;
 		},
-		shuffleTeams: function() {
-			if (!teamsData || !tournamentData || tournamentData.properties.status != 'Not started') {
-				return;
-			}
-
-			var currentIndex = teamsData.length,
-				temporaryValue, randomIndex;
-			var shuffled = teamsData.slice();
-
-			// While there remain elements to shuffle...
-			while (0 !== currentIndex) {
-				randomIndex = Math.floor(Math.random() * currentIndex);
-				currentIndex -= 1;
-				temporaryValue = shuffled[currentIndex];
-				shuffled[currentIndex] = shuffled[randomIndex];
-				shuffled[randomIndex] = temporaryValue;
-			}
-
-			var i, j = 0;
-			if (this.getTournamentType() === 'DE' && firstRound === null) {
-				firstRound = angular.module('ngBracket').findFirstRound(tournamentData.matches);
-			}
-
-			var round = this.getTournamentType() === 'DE' ? firstRound : 0;
-			// Apply shuffled order to matches
-			for (i = 0; i < tournamentData.matches[round].length; i++) {
-				if (tournamentData.matches[round][i].meta.matchId.slice(-1) === 'L') {
-					break;
-				}
-
-				tournamentData.matches[round][i].team1.id = shuffled[j].id;
-				tournamentData.matches[round][i].team2.id = shuffled[j + 1].id;
-				j += 2;
-			}
-
-			if (tournamentData.properties.unbalanced) {
-				round += 1;
-				for (i = 0; i < tournamentData.matches[round].length; i++) {
-					if (j >= shuffled.length || tournamentData.matches[round][i].meta.matchId.slice(-1) === 'L') {
-						break;
-					}
-
-					if (tournamentData.matches[round][i].meta.matchType === 1) {
-						tournamentData.matches[round][i].team1.id = shuffled[j].id;
-						j += 1;
-					} else if (tournamentData.matches[round][i].meta.matchType === 2) {
-						tournamentData.matches[round][i].team1.id = shuffled[j].id;
-						tournamentData.matches[round][i].team2.id = shuffled[j + 1].id;
-						j += 2;
-					}
-				}
-			}
+		getOptions: function() {
+			return tData.options;
 		},
 		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {
 			function promoteToMatch(nextMatch, teamId, oldValues, first) {
@@ -170,44 +101,45 @@ myApp.factory('data', function() {
 			}
 
 			function findMatchByType(roundType, rNumber) {
-				for (var x = 0; x < tournamentData.matches[rNumber].length; x++) {
-					if (tournamentData.matches[rNumber][x].meta.matchType == roundType) {
-						return tournamentData.matches[rNumber][x];
+				for (var x = 0; x < matches[rNumber].length; x++) {
+					if (matches[rNumber][x].meta.matchType == roundType) {
+						return matches[rNumber][x];
 					}
 				}
 				return null;
 			}
 
 			function findTargetRound(parentRound) {
-				for (var x = 0; x < tournamentData.matches.length; x++) {
-					var l = tournamentData.matches[x].length;
-					if (tournamentData.matches[x][l - 1].meta.team1Parent && tournamentData.matches[x][l - 1].meta.team1Parent.split('-')[1] == parentRound) {
+				for (var x = 0; x < matches.length; x++) {
+					var l = matches[x].length;
+					if (matches[x][l - 1].meta.team1Parent && matches[x][l - 1].meta.team1Parent.split('-')[1] == parentRound) {
 						return x;
 					}
-					if (tournamentData.matches[x][l - 1].meta.team2Parent && tournamentData.matches[x][l - 1].meta.team2Parent.split('-')[1] == parentRound) {
+					if (matches[x][l - 1].meta.team2Parent && matches[x][l - 1].meta.team2Parent.split('-')[1] == parentRound) {
 						return x;
 					}
 				}
 			}
 
-			if (tournamentData.properties.status === 'Not started') {
-				tournamentData.properties.status = 'In progress';
+			if (tData.tournament.properties.status === 'Not started') {
+				tData.tournament.properties.status = 'In progress';
 			}
 
+			var matches = tData.tournament.matches;
 			var b = match.meta.matchId.split('-');
 			var round = parseInt(b[1]);
 			var matchIndex = parseInt(b[2]);
 			var isLoserMatch = b.length > 3 && b[3] === 'L';
-			var isSemiFinal = round === (tournamentData.matches.length - 1);
+			var isSemiFinal = round === (matches.length - 1);
 			var i, promotedLoser, rLength;
 
 			// Double elimination finals: If loser bracket finalist loses, there is no need for 2nd part. Otherwise there will be rematch.
-			if (tournamentData.type === 'DE' && match.meta.matchType === 'finals') {
-				var tRound = tournamentData.matches.length - 2;
-				rLength = tournamentData.matches[tRound].length - 1;
-				promotedLoser = tournamentData.matches[tRound][rLength].team1.score > tournamentData.matches[tRound][rLength].team2.score ? tournamentData.matches[tRound][rLength].team1.id : tournamentData.matches[tRound][rLength].team2.id;
-				tournamentData.properties.finals2 = loserId != promotedLoser;
-				var m = findMatchByType('finals2', tournamentData.matches.length - 1);
+			if (tData.tournament.type === 'DE' && match.meta.matchType === 'finals') {
+				var tRound = matches.length - 2;
+				rLength = matches[tRound].length - 1;
+				promotedLoser = matches[tRound][rLength].team1.score > matches[tRound][rLength].team2.score ? matches[tRound][rLength].team1.id : matches[tRound][rLength].team2.id;
+				tData.tournament.properties.finals2 = loserId != promotedLoser;
+				var m = findMatchByType('finals2', matches.length - 1);
 
 				if (loserId != promotedLoser) {
 					// Should never be null or it's an error...
@@ -225,8 +157,8 @@ myApp.factory('data', function() {
 				return;
 			}
 
-			if ((tournamentData.type === 'SE' && round === tournamentData.matches.length) ||
-				(tournamentData.type === 'DE' && (match.meta.matchType === 'bronze' || match.meta.matchType === 'finals2'))) {
+			if ((tData.tournament.type === 'SE' && round === matches.length) ||
+				(tData.tournament.type === 'DE' && (match.meta.matchType === 'bronze' || match.meta.matchType === 'finals2'))) {
 				return;
 			}
 
@@ -236,15 +168,15 @@ myApp.factory('data', function() {
 			}
 
 			// Push losers to bronze match if there is one
-			if ((tournamentData.type === 'SE' && isSemiFinal && tournamentData.matches[tournamentData.matches.length - 1].length > 1) ||
-				(tournamentData.type === 'DE' && isLoserMatch && (isSemiFinal || round === (tournamentData.matches.length - 2)))) {
-				rLength = tournamentData.matches[tournamentData.matches.length - 1].length;
-				var bronzeMatch = findMatchByType('bronze', tournamentData.matches.length - 1);
+			if ((tData.tournament.type === 'SE' && isSemiFinal && matches[matches.length - 1].length > 1) ||
+				(tData.tournament.type === 'DE' && isLoserMatch && (isSemiFinal || round === (matches.length - 2)))) {
+				rLength = matches[matches.length - 1].length;
+				var bronzeMatch = findMatchByType('bronze', matches.length - 1);
 				promoteToMatch(bronzeMatch, loserId, t, matchIndex === 1);
 			}
 
 			var connectingMatchIndex = 0;
-			var nextRound = tournamentData.matches[round];
+			var nextRound = matches[round];
 			var loserBracketFinals = isLoserMatch && isSemiFinal;
 
 			for (i = 0; i < nextRound.length; i++) {
@@ -265,7 +197,7 @@ myApp.factory('data', function() {
 			// Double elimination loser bracket
 			if (promoteLoser) {
 				var targetRoundInd = parseInt(match.meta.loserMatchId.split('-')[1]) - 1;
-				var targetRound = tournamentData.matches[targetRoundInd];
+				var targetRound = matches[targetRoundInd];
 				for (i = (targetRound.length - 1); i >= 0; i--) {
 					if (targetRound[i].meta.team1Parent === match.meta.matchId) {
 						targetRound[i].team1.id = loserId;
@@ -277,18 +209,17 @@ myApp.factory('data', function() {
 				}
 			}
 		},
-		loadTournament: function(tData, teams) {
-			teamsData = teams;
-			tournamentData = tData;
-			firstRound = tData.type === 'DE' ? angular.module('ngBracket').findFirstRound(tData.matches) : null;
+		loadTournament: function(tournamentData) {
+			tData = tournamentData;
+			firstRound = tData.tournament.type === 'DE' ? angular.module('ngBracket').findFirstRound(tData.tournament.matches) : null;
 		}
 	};
-});
+})
 
 /**
  * Service for finding connecting matches.
  */
-myApp.factory('connectorService', ['data',
+.factory('connectorService', ['data',
 	function(data) {
 		return {
 			findConnectingMatchId: function(match) {
@@ -337,28 +268,49 @@ myApp.factory('connectorService', ['data',
 			}
 		};
 	}
-]);
+])
+
+/*
+ * Service that keeps track of a team to highlight through bracket.
+ */
+.factory('highlight', function() {
+	var highlight = {
+		teamId: null
+	};
+	return {
+		mapHighlight: function() {
+			return highlight;
+		},
+		setHighlight: function(teamId) {
+			highlight.teamId = (teamId && teamId.length > 0) ? teamId : null;
+		}
+	};
+})
 
 /**
  * Provides bracket size properties. It creates temporary match element to get measurements from CSS, so that we don't need hard coded values.
  * Note: This could be re-written and simplified with jQuery.
  **/
-myApp.factory('positioningService', ['data',
+.factory('layoutService', ['data',
 	function(data) {
-		var init = function(properties) {
-			function normalMatches(val) {
-				return val.meta.matchId.slice(-1) !== 'L';
-			}
+		function normalMatches(val) {
+			return val.meta.matchId.slice(-1) !== 'L';
+		}
 
-			function loserMatches(val) {
-				return val.meta.matchId.slice(-1) === 'L';
-			}
+		function loserMatches(val) {
+			return val.meta.matchId.slice(-1) === 'L';
+		}
 
+		function init(properties) {
 			var headerEl = document.getElementsByClassName('roundHeader')[0];
 			var roundRoot = document.getElementsByClassName('round')[0];
 			matchEl = document.createElement('div');
 			matchEl.style.visibility = 'hidden';
 			matchEl.className = 'match';
+
+			if (!headerEl || !roundRoot) {
+				return;
+			}
 
 			roundRoot.appendChild(matchEl);
 
@@ -381,201 +333,65 @@ myApp.factory('positioningService', ['data',
 					parseInt(document.defaultView.getComputedStyle(headerEl, '').getPropertyValue('margin-bottom'));
 			}
 
+			roundRoot.removeChild(matchEl);
+			initialized = true;
+		}
+
+		function calculateSize(properties) {
+			var m = data.getMatches();
+
+			if (!m) {
+				properties.bracket.width = '0 px';
+				properties.bracket.height = '0 px';
+				return;
+			}
+
+			var longestRound = 0;
+
 			if (data.getTournamentType() === 'DE') {
-				var m = data.getMatches();
 				var fr = angular.module('ngBracket').findFirstRound(m);
 
 				if (fr) {
 					properties.startingRound = fr + 1;
-					properties.roundHeight = Math.max(m[fr].filter(normalMatches).length, m[fr + 1].filter(normalMatches).length);
-					properties.roundHeight += Math.max(m[0].filter(loserMatches).length, m[1].filter(loserMatches).length);
+					longestRound = Math.max(m[fr].filter(normalMatches).length, m[fr + 1].filter(normalMatches).length);
+					longestRound += Math.max(m[0].filter(loserMatches).length, m[1].filter(loserMatches).length);
 				}
 
 				properties.lbOffset = data.getProperties().lbOffset * (properties.matchHeight + properties.matchMarginV) + properties.roundMarginTop;
+				longestRound += 0.5;
 			}
 
-			roundRoot.removeChild(matchEl);
-			initialized = true;
-		};
+			longestRound = longestRound !== 0 ? longestRound : (m[0].length > m[1].length ? m[0].length : m[1].length);
+			properties.bracket.height = String(longestRound * (properties.matchHeight + properties.matchMarginV) + properties.roundMarginTop) + 'px';
+			properties.bracket.width = String(m.length * (properties.matchWidth + properties.matchMarginH)) + 'px';
+		}
 
-		var matchProperties = {
+		var bracketProperties = {
 			matchHeight: null, // Match element height
 			matchWidth: null, // Match element width
-			matchMarginH: null, // Horizontal margin between rounds
+			matchMarginH: null, // Horizontal margin between matches
 			matchMarginV: null, // Vertical margin between match elements
 			borderThickness: null, // Match element's border thickness
 			roundMarginTop: null, // Round top margin (= margin from round header to topmost match element)
 			startingRound: null, // Round number which contains first playable matches (only in DE, where loser bracket may be longer)
-			roundHeight: null,
-			lbOffset: null // Vertical offset where loser bracket begins
+			lbOffset: null, // Vertical offset where loser bracket begins
+			bracket: {
+				"width": null, // Total width of the bracket
+				"height": null // Total height of the bracket
+			}
 		};
 		var initialized = false;
 
 		return {
-			getBracketProperties: function() {
+			getProperties: function() {
 				if (!initialized) {
-					init(matchProperties);
+					init(bracketProperties);
+					calculateSize(bracketProperties);
 				}
-				return JSON.parse(JSON.stringify(matchProperties)); // return a copy of properties, just in case
+				return bracketProperties;
 			},
-			resetProperties: function() {
-				initialized = false;
-				matchProperties.startingRound = null;
-				matchProperties.roundHeight = null;
-			}
-		};
-	}
-]);
-
-/**
- * Common functions for dialog windows.
- *
- * show: Toggles given dialog element visible and positions it next to given target element.
- *	params: dialog 	 - the dialog element to show
- *			targetEl - element to align dialog with
- *			offsetX	 - additional horizontal offset (optional)
- *			offsetY  - additional vertical offset (optional)
- *			align	 - true/false flag to disable default positioning next to target element
- */
-myApp.factory('dialogServiceBase', function() {
-	return {
-		show: function(dialog, targetEl, offsetX, offsetY, align) {
-			if (dialog !== null) {
-				if (align && targetEl !== null && targetEl.getBoundingClientRect()) {
-					var div = targetEl.getBoundingClientRect();
-					var offsetLeft = div.right + ((window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft);
-					var offsetTop = div.top + ((window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop);
-					var targetHeight = div.height;
-					var dialogHeight = dialog[0].getBoundingClientRect().height;
-
-					offsetTop += (dialogHeight > targetHeight) ? (dialogHeight / -2) + (targetHeight / 2) : (targetHeight / 2) - (dialogHeight / 2);
-
-					dialog.css('left', (offsetLeft + offsetX) + 'px');
-					dialog.css('top', (offsetTop + offsetY) + 'px');
-				}
-
-				dialog.css('visibility', 'visible');
-			}
-		},
-		hide: function(dialog) {
-			if (dialog !== null) {
-				dialog.css('visibility', 'hidden');
-			}
-		}
-	};
-});
-
-myApp.createCloseOnEscEventHandler = function(callbackObj, callback) {
-	return function(event) {
-		if (event.keyCode === 27) {
-			callback.call(callbackObj);
-		}
-	};
-};
-
-/**
- * Provides details view into selected match.
- * Can be disabled with 'setEnabled' function, or by not having detail element with 'detailOverlay' Id at all.
- **/
-myApp.factory('matchDetailService', ['dialogServiceBase', '$document',
-	function(dialogService, $document) {
-		var detailContainer = null;
-		var matchDetails = {};
-		var prevShowedMatchId = '';
-		var init = false;
-		var isEnabled = false;
-		var handleKeyUpEvent = null;
-		return {
-			setEnabled: function(enabled) {
-				isEnabled = enabled;
-			},
-			mapMatchDetails: function() {
-				return matchDetails;
-			},
-			show: function(matchElement, details, align) {
-				handleKeyUpEvent = angular.module('ngBracket').createCloseOnEscEventHandler(this, this.hide);
-
-				if (!isEnabled) {
-					return;
-				}
-				// Toggle closed
-				if (detailContainer !== null && detailContainer.css('visibility') == 'visible' && details.matchId == prevShowedMatchId) {
-					this.hide();
-					return;
-				}
-				prevShowedMatchId = details.matchId;
-				matchDetails.team1Details = details.team1Details;
-				matchDetails.team2Details = details.team2Details;
-				matchDetails.results = details.results;
-
-				if (!init) {
-					detailContainer = angular.element(document.getElementById('detailOverlay'));
-					init = true;
-				}
-				if (detailContainer !== null && matchElement !== null) {
-					var targetEl = angular.module('ngBracket').findParentByAttribute(matchElement, 'class', 'match')[0];
-					$document.unbind('keyup', handleKeyUpEvent).bind('keyup', handleKeyUpEvent);
-					dialogService.show(detailContainer, targetEl, 0, 0, align);
-				}
-			},
-			hide: function() {
-				$document.unbind('keyup', handleKeyUpEvent);
-				handleKeyUpEvent = null;
-				dialogService.hide(detailContainer);
-			}
-		};
-	}
-]);
-
-/*
- * Service to show/hide team selection menu
- */
-myApp.factory('teamSelectService', ['dialogServiceBase', 'data', '$document',
-	function(dialogService, data, $document) {
-		var teamSelectDialog = null;
-		var targetTeamslot = null;
-		var handleKeyUpEvent = null;
-		var handleClickEvent = null;
-		return {
-			show: function(matchElement, teamslot, align) {
-				handleKeyUpEvent = angular.module('ngBracket').createCloseOnEscEventHandler(this, this.hide);
-
-				handleClickEvent = function(callbackObj, hide) {
-					return function(event) {
-						if (event.button !== 2 && angular.module('ngBracket').findParentByAttribute(event.target, 'id', 'selectTeamOverlay') === null) {
-							hide.call(callbackObj);
-						}
-					};
-				}(this, this.hide);
-
-				if (data.getProperties().status !== 'Not started') {
-					return;
-				}
-				if (teamSelectDialog === null) {
-					teamSelectDialog = angular.element(document.getElementById('selectTeamOverlay'));
-				}
-				if (teamSelectDialog !== null) {
-					$document.unbind('keyup', handleKeyUpEvent).bind('keyup', handleKeyUpEvent);
-					$document.unbind('click', handleClickEvent).bind('click', handleClickEvent);
-
-					targetTeamslot = teamslot;
-					dialogService.show(teamSelectDialog, matchElement, 0, 0, align);
-				}
-			},
-			hide: function() {
-				targetTeamslot = null;
-				if (teamSelectDialog !== null) {
-					$document.unbind('keyup', handleKeyUpEvent);
-					$document.unbind('click', handleClickEvent);
-					handleKeyUpEvent = null;
-					handleClickEvent = null;
-					dialogService.hide(teamSelectDialog);
-				}
-			},
-			select: function(team) {
-				if (targetTeamslot !== null) {
-					targetTeamslot.id = team.id;
-				}
+			refresh: function() {
+				calculateSize(bracketProperties);
 			}
 		};
 	}

@@ -1,19 +1,7 @@
 'use strict';
 
 describe('Bracket generator', function() {
-	var tournament, result, players;
-
-	var mockPositioningService = {
-		resetProperties: function() {}
-	}
-
-	var mockData = {
-		setParticipants: function(participants) {},
-		setTournament: function(tData) {},
-		getTournamentType: function() {
-			return 'SE';
-		}
-	}
+	var tournamentGenerator, result, players;
 
 	function generatePlayers(amount) {
 		var p = [];
@@ -30,20 +18,14 @@ describe('Bracket generator', function() {
 		beforeEach(module('ngBracket'));
 
 		beforeEach(function() {
-
-			module(function($provide) {
-				$provide.value('data', mockData);
-				$provide.value('positioningService', mockPositioningService);
-			});
-
-			inject(function(_tournament_) {
-				tournament = _tournament_;
+			inject(function(_tournamentGenerator_) {
+				tournamentGenerator = _tournamentGenerator_;
 			});
 		});
 
 		it('Should generate balanced bracket with bronze match', function() {
 			players = generatePlayers(8);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(3);
 			expect(result.matches[0].length).toBe(4);
 			expect(result.matches[2].length).toBe(2);
@@ -51,7 +33,7 @@ describe('Bracket generator', function() {
 
 		it('Should generate balanced bracket without bronze match', function() {
 			players = generatePlayers(8);
-			result = tournament.newTournament(ttype, players, false);
+			result = tournamentGenerator.newTournament(ttype, players, false);
 			expect(result.matches.length).toBe(3);
 			expect(result.matches[0].length).toBe(4);
 			expect(result.matches[2].length).toBe(1);
@@ -60,28 +42,28 @@ describe('Bracket generator', function() {
 		// Halfway ie 12, 24, 48... (= balanced brackets are 4, 8, 16, 32..., so 12 is halfway between 8 and 16)
 		it("Should generate unbalanced bracket with player amount halfway between balanced brackets", function() {
 			players = generatePlayers(12);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(4);
 			expect(result.matches[0].length).toBe(result.matches[1].length);
 		});
 
 		it("Should generate unbalanced bracket with player amount below the halfway between balanced brackets", function() {
 			players = generatePlayers(20);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(5);
 			expect(result.matches[0].length).toBeLessThan(result.matches[1].length);
 		});
 
 		it("Should generate unbalanced bracket with player amount above halfway between balanced brackets", function() {
 			players = generatePlayers(28);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(5);
 			expect(result.matches[0].length).toBeGreaterThan(result.matches[1].length);
 		});
 
 		it("Should generate metadata", function() {
 			players = generatePlayers(14);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches[0][0].meta.team1Parent).not.toBeUndefined;
 			expect(result.matches[0][0].meta.team2Parent).not.toBeUndefined;
 			expect(result.matches[3][0].meta.matchType).toEqual('finals');
@@ -94,27 +76,18 @@ describe('Bracket generator', function() {
 	describe('Double Elimination tests', function() {
 
 		var ttype = 'DE';
-		mockData.getTournamentType = function() {
-			return 'DE';
-		}
 
 		beforeEach(module('ngBracket'));
 
 		beforeEach(function() {
-
-			module(function($provide) {
-				$provide.value('data', mockData);
-				$provide.value('positioningService', mockPositioningService);
-			});
-
-			inject(function(_tournament_) {
-				tournament = _tournament_;
+			inject(function(_tournamentGenerator_) {
+				tournamentGenerator = _tournamentGenerator_;
 			});
 		});
 
 		it('Should generate balanced bracket with bronze match', function() {
 			players = generatePlayers(8);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(5);
 			expect(result.matches[0].length).toBe(2);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
@@ -124,7 +97,7 @@ describe('Bracket generator', function() {
 
 		it('Should generate balanced bracket without bronze match', function() {
 			players = generatePlayers(8);
-			result = tournament.newTournament(ttype, players, false);
+			result = tournamentGenerator.newTournament(ttype, players, false);
 			expect(result.matches.length).toBe(5);
 			expect(result.matches[0].length).toBe(2);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
@@ -135,14 +108,14 @@ describe('Bracket generator', function() {
 		// Halfway ie 12, 24, 48... (= balanced brackets are 4, 8, 16, 32..., so 12 is halfway between 8 and 16)
 		it("Should generate unbalanced bracket with player amount halfway between balanced brackets", function() {
 			players = generatePlayers(12);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(6);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
 			expect(result.matches[0].length).toBe(4);
 			expect(result.matches[1].length).toBe(result.matches[2].length);
 
 			players = generatePlayers(48);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(10);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
 			expect(result.matches[0].length).toBe(16);
@@ -151,7 +124,7 @@ describe('Bracket generator', function() {
 
 		it("Should generate unbalanced bracket with player amount below the halfway between balanced brackets", function() {
 			players = generatePlayers(20);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(8);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
 			expect(result.matches[2].length).toBeLessThan(result.matches[3].length);
@@ -159,7 +132,7 @@ describe('Bracket generator', function() {
 
 		it("Should generate unbalanced bracket with player amount above halfway between balanced brackets", function() {
 			players = generatePlayers(28);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches.length).toBe(8);
 			expect(result.matches[0][0].meta.matchId).toContain('-L');
 			expect(result.matches[0].length).toBeLessThan(result.matches[1].length);
@@ -167,7 +140,7 @@ describe('Bracket generator', function() {
 
 		it("Should generate metadata", function() {
 			players = generatePlayers(14);
-			result = tournament.newTournament(ttype, players, true);
+			result = tournamentGenerator.newTournament(ttype, players, true);
 			expect(result.matches[0][0].meta.team1Parent).not.toBeUndefined;
 			expect(result.matches[0][0].meta.team2Parent).not.toBeUndefined;
 			expect(result.matches[5][0].meta.matchType).toEqual('finals');
