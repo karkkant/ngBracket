@@ -10,7 +10,7 @@ app.directive('ngbracket', ['data', 'layoutService',
 			scope: {
 				bracketData: '=',
 			},
-			controller: function($scope) {
+			controller: ['$scope', function($scope) {
 
 				if ($scope.bracketData) {
 					$scope.bracketData.reload = function() {
@@ -24,7 +24,7 @@ app.directive('ngbracket', ['data', 'layoutService',
 					};
 
 				}
-			}
+			}]
 		};
 	}
 ])
