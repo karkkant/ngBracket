@@ -17,11 +17,23 @@ $fonts:Calibri;
 	#bracketRoot {
 		clear: right;
 	}
+	.conferencesWrap{
+		position:relative;
+		float:left;
+	}
+	.conference{
+		position: relative;
+		float:left;
+	}
 	.round {
 		position: relative;
 		width: $matchWidth + $matchMarginH;
 		height: 100%;
 		float: left;
+
+		&.doubleFinal {
+			width: ($matchWidth + $matchMarginH) * 2;
+		}
 	}
 	.roundTitle {
 		display: table;
@@ -32,6 +44,24 @@ $fonts:Calibri;
 		margin-bottom: 20px;
 		min-height: $roundHeaderHeight;
 		max-height: $roundHeaderHeight;
+	}
+	.conference {
+		.alignLeft {
+			text-align: left;
+			margin-left: $matchMarginH / 2;
+		}
+		.alignCenter {
+			width: 100%;
+			margin: 0 auto;
+			text-align: center;
+		}
+		.alignRight {
+			text-align: right;
+			margin-right: $matchMarginH / 2;
+		}
+	}
+	.conferenceHeader {
+		font-weight: bold;
 	}
 	/* Note! min-width and min-height are required */
 	.match {
@@ -177,5 +207,8 @@ $fonts:Calibri;
 	}
 	.connectorTop {
 		border-top: 2px solid;
+	}
+	.connectorRight {
+		border-right: 2px solid;
 	}
 }

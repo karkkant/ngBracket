@@ -1,5 +1,5 @@
 <div class="match" ng-init="results={winner:'', loser:''}" 
-	 ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length)), hidden:(prop.finals2 === false)}" 
+	 ng-class="{tbd:((!team1Details.id || 0 === team1Details.id.length) && (!team2Details.id || 0 === team2Details.id.length)), hidden:(match.meta.matchType === 'finals2' && ((conference === 1 && prop.finals2C1 === false) || (conference === 2 && prop.finals2C2 === false)))}" 
 	 ng-click="showDetails($event)">
 	<team team="match.team1" teamdetails="team1Details" description="team1Description"></team>
 	<div ng-class="{separator: (match.team1.id.length > 0 && match.team2.id.length > 0)}"></div>

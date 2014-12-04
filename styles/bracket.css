@@ -9,11 +9,19 @@ div.ngBracket {
   /* Connector styles */ }
   div.ngBracket #bracketRoot {
     clear: right; }
+  div.ngBracket .conferencesWrap {
+    position: relative;
+    float: left; }
+  div.ngBracket .conference {
+    position: relative;
+    float: left; }
   div.ngBracket .round {
     position: relative;
     width: 240px;
     height: 100%;
     float: left; }
+    div.ngBracket .round.doubleFinal {
+      width: 480px; }
   div.ngBracket .roundTitle {
     display: table;
     margin: 0 auto; }
@@ -21,6 +29,18 @@ div.ngBracket {
     margin-bottom: 20px;
     min-height: 20px;
     max-height: 20px; }
+  div.ngBracket .conference .alignLeft {
+    text-align: left;
+    margin-left: 20px; }
+  div.ngBracket .conference .alignCenter {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center; }
+  div.ngBracket .conference .alignRight {
+    text-align: right;
+    margin-right: 20px; }
+  div.ngBracket .conferenceHeader {
+    font-weight: bold; }
   div.ngBracket .match {
     position: absolute;
     width: 200px;
@@ -133,5 +153,7 @@ div.ngBracket {
     border-left: 2px solid; }
   div.ngBracket .connectorTop {
     border-top: 2px solid; }
+  div.ngBracket .connectorRight {
+    border-right: 2px solid; }
 
 /*# sourceMappingURL=bracket.css.map */
