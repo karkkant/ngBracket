@@ -1,9 +1,7 @@
 <div class="team" ng-mouseenter="highlightTrack(team.id)" ng-mouseleave="highlightTrack()" 
-	 ng-class="{empty: (!team.id || 0 === team.id.length), highlight: (highlight.teamId === team.id), loser: (results.loser.length > 0 && results.loser == team.id), winner: (results.winner.length > 0 && results.winner == team.id)}" ng-init="status='uneditable'" ng-switch="status">
-	<div class="flagContainer">
-		<div class="flag" style="background-image:url(demo/images/{{teamdetails.flag}})"></div>
-	</div>
+	 ng-class="{empty: (!team.id || 0 === team.id.length), highlight: (highlight.teamId === team.id), loser: (results.loser.length > 0 && results.loser == team.id), winner: (results.winner.length > 0 && results.winner == team.id), gold: (highlight.goldId === team.id), silver: (highlight.silverId === team.id), bronze: (highlight.bronzeId === team.id), finals: ((match.meta.matchType === 'finals' && !prop.finals2C1) || (match.meta.matchType === 'finals2' && prop.finals2C1) || match.meta.matchType === 'bronze')}" ng-init="status='uneditable'" ng-switch="status">
+	<div class="flag" style="background-image:url(demo/images/{{teamdetails.flag}})"></div>
+	<span class="teamname" ng-switch-default team-context-menu ng-dblclick="editTeam()">{{ (description.length > 0 && !teamdetails.name) | iif : description : ((teamdetails.name.length === 0) | iif : '(No name)' : teamdetails.name) }}</span>	
 	<input class="teamInput" ng-switch-when="editable" ng-blur="endEditTeam()" do-focus="" type="text" ng-model="teamdetails.name"></input>
 	<score team="team" match="match" results="results"></score>
-	<span class="teamname" ng-switch-default team-context-menu ng-dblclick="editTeam()">{{ (description.length > 0 && !teamdetails.name) | iif : description : ((teamdetails.name.length === 0) | iif : '(No name)' : teamdetails.name) }}</span>
 </div>

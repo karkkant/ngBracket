@@ -73,6 +73,7 @@ app.directive('ngbracket', ['data', 'layoutService',
     }
 ])
 
+
 .directive("onBeginRender", ['data', 'connectorService', 'layoutService', function(data, connectorService, layoutService) {
     return function(scope, element, attrs) {
     	if(data.isDoubleConference()){
@@ -317,6 +318,10 @@ app.directive('ngbracket', ['data', 'layoutService',
                         el.bind('click', clickCallback);
                     }
 
+                    if(scope.match.meta.matchType === 'conference-finals' && scope.match.meta.matchId.split('-')[1] === 'C2') {
+                    	connectorService.findConferenceFinals(); // register this conference 2 final
+                    }
+
                     scope.$on('$destroy', function() {
                         el.unbind('contextmenu', rClickCallback);
                         el.unbind('click', clickCallback);
@@ -353,6 +358,15 @@ app.directive('ngbracket', ['data', 'layoutService',
                         scope.results.winner = "";
                         scope.results.loser = "";
                         return;
+                    }
+
+                    var options = data.getOptions();
+
+                    // app spesific match rules
+                    if(options.onScoreChanged) {
+                    	if(!options.onScoreChanged(scope.match)) {
+                    		return;
+                    	}
                     }
 
                     var winnerId;
@@ -411,8 +425,9 @@ app.directive('ngbracket', ['data', 'layoutService',
                     var rule1 = noHighlightRule ? cmatch + '.team1.score > ' + cmatch + '.team2.score && ' : '';
                     var rule2 = noHighlightRule ? cmatch + '.team2.score > ' + cmatch + '.team1.score && ' : '';
                     var hlc = 'highlight: highlight.teamId !== null && ((match.team1.id === highlight.teamId || match.team2.id === highlight.teamId) && ((' + rule1 + cmatch + '.team1.id === highlight.teamId) || (' + rule2 + cmatch + '.team2.id === highlight.teamId)))';
+                    var medalHighlightRules = ',gold: highlight.goldId !== null && ((highlight.goldId === match.team1.id || match.team2.id === highlight.goldId) && ((' + cmatch + '.team1.id === highlight.goldId) || (' + cmatch + '.team2.id === highlight.goldId)))';
                     var hidden = scope.match.meta.matchType === 'finals2' ? ',hidden:(prop.finals2' + parts[1] +' === false)' : '';
-                    var c = 'ng-class="{' + sc + (sc.length > 0 ? ', ' : '') + hlc + hidden + '}"';
+                    var c = 'ng-class="{' + sc + (sc.length > 0 ? ', ' : '') + hlc + hidden + medalHighlightRules +'}"';
                     return angular.element($compile('<div class="connector" style="left:' + posX + 'px;top:' + posY + 'px;width:' + width + 'px;height:' + height + 'px" ' + c + '></div>')(scope));
                 }
 
@@ -486,21 +501,28 @@ app.directive('ngbracket', ['data', 'layoutService',
                 var lm = scope.match.meta.matchId.slice(-1) === 'L';
 
                 if (parts[1] == 'F') {
-                    var confFinals = connectorService.findConferenceFinals();
+                    scope.confFinals = connectorService.findConferenceFinals();
                     var thisMatch = connectorService.findChildMatch(el.parent());
                     var verticalBase = thisMatch.prop('offsetTop') + (properties.matchHeight / 2);
                     var horizontalBase = thisMatch.prop('offsetLeft');
                     // Left side connector
                     var width = properties.matchMarginH / 2;
-                    var height = confFinals.C1.offsetTop - verticalBase + (properties.matchHeight / 2);
+                    var height = scope.confFinals.C1.offsetTop - verticalBase + (properties.matchHeight / 2);
                     var connector = el.append(createConnector(width, height, horizontalBase - width, verticalBase, 1).addClass('connectorTop connectorLeft'));
                     el.append(createConnector(width, 1, horizontalBase - properties.matchMarginH + properties.borderThickness, verticalBase + height, 1).addClass('connectorBottom'));
-                    scope.cMatch1 = angular.element(confFinals.C1).scope();
+                    scope.cMatch1 = angular.element(scope.confFinals.C1).scope().match;
                     // Right side connector
                     horizontalBase += properties.matchWidth + properties.borderThickness;
                     el.append(createConnector(width, height, horizontalBase, verticalBase, 2).addClass('connectorTop connectorRight'));
                     el.append(createConnector(width, 1, horizontalBase + width, verticalBase + height, 2).addClass('connectorBottom'));
-                    scope.cMatch2 = angular.element(confFinals.C2).scope();
+
+                	var w2 = scope.$watch('confFinals.C2', function(newValue, oldValue) {
+                		if(newValue) {
+                			scope.cMatch2 = angular.element(scope.confFinals.C2).scope().match;
+                			w2();
+                		}
+                	});
+                    
                 } else {
                     createConnectors(properties, round, lm, parts[1] == 'C2');
                 }
@@ -524,6 +546,10 @@ app.directive('ngbracket', ['data', 'layoutService',
                 description: '='
             },
             link: function(scope, el, attrs) {
+            	function clickCallback(event) {
+                    options.onTeamClick(event, scope.team);
+                }
+
                 scope.highlight = scope.$parent.highlight;
                 scope.results = scope.$parent.results;
                 scope.match = scope.$parent.match;
@@ -543,12 +569,16 @@ app.directive('ngbracket', ['data', 'layoutService',
 
                 var options = data.getOptions();
 
+                if((scope.match.meta.matchType === 'finals' || scope.match.meta.matchType === 'finals2') && data.getTournamentType() === 'DE') {
+                	scope.prop = data.getProperties();
+                }
+
                 if (options.onTeamClick) {
-                    el.bind('click', options.onTeamClick);
+                    el.bind('click', clickCallback);
                 }
 
                 scope.$on('$destroy', function() {
-                    el.unbind('click', options.onTeamClick);
+                    el.unbind('click', clickCallback);
                 });
             }
         };

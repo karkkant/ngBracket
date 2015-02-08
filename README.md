@@ -25,8 +25,9 @@ Basicly the plugin takes in tournament data structure which can be generated usi
 You can also provide custom callbacks in options section:
 ```
 options: {
-  onTeamClick: doSomething,
-  onTeamRightClick: doSomething,
-  onMatchClick: doSomething,
-  onMatchRightClick: doSomething
+  onTeamClick: function(event) {...},
+  onTeamRightClick: function(event, team) {...},
+  onMatchClick: function(event, match) {...},
+  onMatchRightClick: function(event, match) {...}
+  onScoreChanged: function(match) {...}
 }

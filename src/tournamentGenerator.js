@@ -480,7 +480,7 @@ angular.module('ngBracket')
 						tournamentData.matches[tournamentData.matches.length - 1].push(doubleFinals);
 					}
 
-					tournamentData.matches[tournamentData.matches.length - 1][0].meta.matchType = 'finals';
+					tournamentData.matches[tournamentData.matches.length - 1][0].meta.matchType = doubleConference ? 'conference-finals' : 'finals';						
 
 					if (playBronzeMatch) {
 						var bronzeMatch = createMatch(tournamentData.matches.length, tournamentData.matches[tournamentData.matches.length - 1].length + 1, conference);
@@ -506,6 +506,11 @@ angular.module('ngBracket')
 				// Got to have at least 4 teams for single conference, and 2 lists of teams for double conference.
 				if ((!doubleConference && teams.length < 3) || (doubleConference && teams.length !== 2)) {
 					return confData;
+				}
+
+				if(doubleConference && ttype == 'DE') {
+					alert('Double elimination double conference is not supported at the moment.');
+					return;
 				}
 
 				// Generate 2 normal tournaments

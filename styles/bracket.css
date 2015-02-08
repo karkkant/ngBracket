@@ -1,47 +1,43 @@
-div.ngBracket {
+.left {
+  position: relative;
+  float: left; }
+
+.centered {
+  display: table;
+  margin: 0 auto; }
+
+#ngBracket {
   font-family: Calibri;
   font-size: 18px;
   position: relative;
   float: left;
   margin-top: 20px;
+  clear: right;
   /* header's max-height is required */
   /* Note! min-width and min-height are required */
   /* Connector styles */ }
-  div.ngBracket #bracketRoot {
-    clear: right; }
-  div.ngBracket .conferencesWrap {
-    position: relative;
-    float: left; }
-  div.ngBracket .conference {
-    position: relative;
-    float: left; }
-  div.ngBracket .round {
-    position: relative;
+  #ngBracket .round {
     width: 240px;
-    height: 100%;
-    float: left; }
-    div.ngBracket .round.doubleFinal {
+    height: 100%; }
+    #ngBracket .round.doubleFinal {
       width: 480px; }
-  div.ngBracket .roundTitle {
-    display: table;
-    margin: 0 auto; }
-  div.ngBracket .roundHeader {
+  #ngBracket .roundHeader {
     margin-bottom: 20px;
     min-height: 20px;
     max-height: 20px; }
-  div.ngBracket .conference .alignLeft {
-    text-align: left;
-    margin-left: 20px; }
-  div.ngBracket .conference .alignCenter {
-    width: 100%;
-    margin: 0 auto;
-    text-align: center; }
-  div.ngBracket .conference .alignRight {
-    text-align: right;
-    margin-right: 20px; }
-  div.ngBracket .conferenceHeader {
+  #ngBracket .conferenceHeader {
     font-weight: bold; }
-  div.ngBracket .match {
+    #ngBracket .conferenceHeader.alignLeft {
+      text-align: left;
+      margin-left: 20px; }
+    #ngBracket .conferenceHeader.alignCenter {
+      width: 100%;
+      margin: 0 auto;
+      text-align: center; }
+    #ngBracket .conferenceHeader.alignRight {
+      text-align: right;
+      margin-right: 20px; }
+  #ngBracket .match {
     position: absolute;
     width: 200px;
     min-width: 200px;
@@ -50,57 +46,91 @@ div.ngBracket {
     margin-right: 40px;
     border-width: 2px;
     border-style: solid;
-    min-height: 50px;
-    max-height: 50px;
-    overflow: hidden; }
-  div.ngBracket .tbd {
+    min-height: 51px;
+    max-height: 51px; }
+  #ngBracket .tbd {
     border-color: #ddd;
     background-color: #f1f1f1; }
-  div.ngBracket .team {
+  #ngBracket .team {
     height: 25px;
     min-height: 25px;
     max-height: 25px;
     cursor: pointer;
-    cursor: hand; }
-  div.ngBracket .empty {
+    cursor: hand;
+    display: table; }
+    #ngBracket .team .teamname {
+      display: table-cell;
+      vertical-align: middle;
+      padding-left: 5px;
+      text-overflow: clip;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 100%;
+      /*min-width: $teamNameWidth;
+      max-width: $teamNameWidth;*/
+      min-height: 25px; }
+    #ngBracket .team .teamInput {
+      margin: 2px 5px;
+      float: left;
+      width: 115px;
+      height: 15px;
+      line-height: 15px; }
+  #ngBracket .empty {
     background-color: #eee;
     cursor: default;
     font-size: 14px; }
-  div.ngBracket .teamname {
-    display: inline-block;
-    padding-left: 5px;
-    text-overflow: clip;
-    white-space: nowrap;
-    overflow: hidden;
-    min-width: 115px;
-    max-width: 115px;
-    min-height: 25px; }
-  div.ngBracket .team.empty .teamname {
-    max-width: 190px; }
-  div.ngBracket .loser {
+    #ngBracket .empty .teamname {
+      max-width: 190px; }
+    #ngBracket .empty .flag {
+      width: 5px; }
+  #ngBracket .loser {
     background-color: #d3d3d3;
     color: #b2b2b2; }
-    div.ngBracket .loser .score {
+    #ngBracket .loser .score {
       color: #B22222; }
-  div.ngBracket .teamInput {
-    width: 115px;
-    height: 15px;
-    line-height: 15px; }
-  div.ngBracket input.score {
-    font-weight: bold;
-    text-align: center;
-    line-height: 20px;
-    font-size: 16px;
-    width: 25px;
-    height: 20px;
-    margin: 0px;
-    padding: 0px; }
-  div.ngBracket .highlight {
+  #ngBracket .highlight {
     background-color: #eea; }
-  div.ngBracket .matchWrapper .separator {
+  #ngBracket .gold {
+    background-color: #FFFF9B;
+    box-shadow: 0px 0px 5px #FFFF9B; }
+    #ngBracket .gold.connector {
+      background-color: transparent;
+      border-color: #FFFF9B;
+      z-index: 10; }
+  #ngBracket .finals.gold:after {
+    background-image: url("/demo/images/gold_medal.png");
+    background-size: 25px;
+    min-height: 25px;
+    min-width: 25px;
+    background-repeat: no-repeat;
+    content: "";
+    position: absolute;
+    right: -30px;
+    z-index: 20; }
+  #ngBracket .finals.silver:after {
+    background-image: url("/demo/images/silver_medal.png");
+    background-size: 25px;
+    min-height: 25px;
+    min-width: 25px;
+    background-repeat: no-repeat;
+    content: "";
+    position: absolute;
+    right: -30px;
+    z-index: 20; }
+  #ngBracket .finals.bronze:after {
+    background-image: url("/demo/images/bronze_medal.png");
+    background-size: 25px;
+    min-height: 25px;
+    min-width: 25px;
+    background-repeat: no-repeat;
+    content: "";
+    position: absolute;
+    right: -30px;
+    z-index: 20; }
+  #ngBracket .separator {
     border-bottom: 1px solid #aaa;
     z-index: 5; }
-  div.ngBracket .score {
+  #ngBracket .score {
     display: inline-block;
     float: right;
     font-weight: bold;
@@ -109,51 +139,59 @@ div.ngBracket {
     width: 30px;
     height: 25px;
     vertical-align: middle; }
-  div.ngBracket span .score {
-    vertical-align: middle;
-    font-size: 20px;
-    line-height: 24px; }
-  div.ngBracket input[type='number'] {
-    -moz-appearance: textfield; }
-  div.ngBracket input[type=number]::-webkit-inner-spin-button, div.ngBracket input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0; }
-  div.ngBracket .hidden {
+    #ngBracket .score input {
+      font-weight: bold;
+      text-align: center;
+      line-height: 20px;
+      font-size: 16px;
+      width: 25px;
+      height: 20px;
+      margin: 0px;
+      padding: 0px; }
+    #ngBracket .score span {
+      vertical-align: middle;
+      font-size: 20px;
+      line-height: 24px; }
+    #ngBracket .score input[type='number'] {
+      -moz-appearance: textfield; }
+    #ngBracket .score input[type=number]::-webkit-inner-spin-button, #ngBracket .score input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0; }
+  #ngBracket .hidden {
     display: none; }
-  div.ngBracket .flagContainer {
+  #ngBracket .flag {
     float: left;
     width: 35px;
-    height: 25px; }
-  div.ngBracket .empty .flagContainer {
-    width: 5px; }
-  div.ngBracket .flag {
+    height: 30px;
     background: no-repeat;
-    height: 35px;
-    margin-left: -3px;
-    margin-top: -6px;
+    margin-left: -1px;
+    margin-top: -5px;
+    /* Margins fitted for demo flags */
     background-size: cover;
     text-indent: -9999px;
     z-index: 20; }
-  div.ngBracket .connector {
+  #ngBracket .connector {
     position: absolute; }
-  div.ngBracket .connectors {
+  #ngBracket .connectors {
     border-color: #000;
     z-index: 1; }
-    div.ngBracket .connectors .tbdB {
+    #ngBracket .connectors .tbdB {
       border-color: #f1f1f1;
       z-index: -1;
       position: absolute; }
-    div.ngBracket .connectors .highlight {
+    #ngBracket .connectors .highlight {
       border-color: #0f0;
       background-color: transparent;
       z-index: 2; }
-  div.ngBracket .connectorBottom {
+    #ngBracket .connectors .finals-winner {
+      border-color: gold; }
+  #ngBracket .connectorBottom {
     border-bottom: 2px solid; }
-  div.ngBracket .connectorLeft {
+  #ngBracket .connectorLeft {
     border-left: 2px solid; }
-  div.ngBracket .connectorTop {
+  #ngBracket .connectorTop {
     border-top: 2px solid; }
-  div.ngBracket .connectorRight {
+  #ngBracket .connectorRight {
     border-right: 2px solid; }
 
 /*# sourceMappingURL=bracket.css.map */

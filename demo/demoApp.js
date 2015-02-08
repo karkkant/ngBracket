@@ -93,7 +93,7 @@ demo.controller('bracketController', ['$scope', '$document', 'tournamentGenerato
 			}
 		};
 
-		$scope.onTeamClick = function(event) {
+		$scope.onTeamClick = function(event, team) {
 			console.log("Team clicked.");
 		};
 
@@ -231,7 +231,7 @@ demo.controller('bracketController', ['$scope', '$document', 'tournamentGenerato
 				onTeamRightClick: showSelectTeam,
 				onTeamClick: $scope.onTeamClick,
 				onMatchClick: showDetails,
-				onMatchRightClick: $scope.onMatchRightClick
+				onMatchRightClick: $scope.onMatchRightClick,
 			}
 		};
 

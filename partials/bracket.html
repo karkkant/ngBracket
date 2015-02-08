@@ -1,13 +1,13 @@
 <!-- Bracket control -->
-<div ng-cloak class="ngBracket" id="bracketRoot" ng-style="layoutProperties.bracket">
+<div ng-cloak id="ngBracket" ng-style="layoutProperties.bracket">
     <!-- Double conference layout -->
-    <div id="conferencesWrap" ng-if="bracketData.tournament.doubleConference">
-        <div class="conference" ng-repeat="c in bracketData.tournament.conferences" ng-init="reversed=($index===2)">
+    <div ng-if="bracketData.tournament.doubleConference">
+        <div class="left" ng-repeat="c in bracketData.tournament.conferences" ng-init="reversed=($index===2)">
             <div class="conferenceHeader" ng-class="{alignLeft:$index === 0, alignCenter:$index === 1, alignRight:$index == 2}">{{c.conferenceName}}</div>
             <div class="roundWrap">
-                <div ng-repeat="m in c.matches" class="round" id="round-{{$index+1}}" ng-class="{'doubleFinal': bracketData.tournament.type === 'DE' && (($parent.$first && $last && (prop.finals2C1 === true || prop.finals2C1 === undefined)) || ($parent.$last && $last && (prop.finals2C2 === true || prop.finals2C2 === undefined)))}" on-begin-render>
+                <div ng-repeat="m in c.matches" class="round left" id="round-{{$index+1}}" ng-class="{'doubleFinal': bracketData.tournament.type === 'DE' && (($parent.$first && $last && (prop.finals2C1 === true || prop.finals2C1 === undefined)) || ($parent.$last && $last && (prop.finals2C2 === true || prop.finals2C2 === undefined)))}" on-begin-render>
                     <div class="roundHeader" ng-if="$parent.$index !== 1">
-                        <span class="roundTitle">{{ 'Round ' + ($index+1) }}</span>
+                        <span class="centered">{{ 'Round ' + ($index+1) }}</span>
                     </div>
                     <div class="matchWrapper" ng-repeat="match in m" id="{{ match.meta.matchId }}">
                         <match></match>
@@ -18,11 +18,11 @@
         </div>     
     </div>
     <!-- Single conference layout -->
-    <div id="singleConferenceWrap" ng-if="!bracketData.tournament.doubleConference">
-        <div ng-repeat="m in bracketData.tournament.conferences[0].matches" class="round" id="round-{{$index+1}}">
+    <div ng-if="!bracketData.tournament.doubleConference">
+        <div ng-repeat="m in bracketData.tournament.conferences[0].matches" class="round left" id="round-{{$index+1}}">
             <div class="roundHeader">
-                <span ng-if="bracketData.tournament.type === 'SE'" class="roundTitle">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
-                <span ng-if="bracketData.tournament.type === 'DE' && $index+1 >= layoutProperties.startingRound" ng-init="rn=(!layoutProperties.startingRound || layoutProperties.startingRound == 1) ? $index + 1 : $index + 2 - layoutProperties.startingRound" class="roundTitle">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
+                <span ng-if="bracketData.tournament.type === 'SE'" class="centered">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + ($index+1)) }}</span>
+                <span ng-if="bracketData.tournament.type === 'DE' && $index+1 >= layoutProperties.startingRound" ng-init="rn=(!layoutProperties.startingRound || layoutProperties.startingRound == 1) ? $index + 1 : $index + 2 - layoutProperties.startingRound" class="centered">{{ ($index+1 == bracketData.tournament.matches.length) | iif : 'Finals' : ('Round ' + rn) }}</span>
             </div>
             <div class="matchWrapper" ng-repeat="match in m" id="{{ match.meta.matchId }}">
                 <match></match>

@@ -71,10 +71,33 @@ app.findFirstRound = function(data) {
 	return null;
 };
 
+/*
+ * Service that keeps track of a team to highlight through bracket.
+ */
+app.factory('highlight', function() {
+	var highlight = {
+		teamId: null,
+		goldId: null,
+		silverId: null,
+		bronzeId: null
+	};
+	return {
+		mapHighlight: function() {
+			return highlight;
+		},
+		setHighlight: function(teamId) {
+			highlight.teamId = (teamId && teamId.length > 0) ? teamId : null;
+		},
+		getProperties: function() {
+			return highlight;
+		}
+	};
+})
+
 /**
  * Contains the tournament data.
  */
-app.factory('data', function() {
+.factory('data', ['highlight', function(highlight) {
 	var tData = null;
 	var firstRound = null;
 	return {
@@ -171,8 +194,32 @@ app.factory('data', function() {
 			var isSemiFinal = round === (matches.length - 1);
 			var i, promotedLoser, rLength, finals2;
 			var t = [match.team1.id, match.team2.id];
+			var medals = highlight.getProperties();
 
 			if(b[1] === 'F') {
+				if(match.meta.matchType === 'bronze') {
+					medals.bronzeId = winnerId;
+				}
+				else {
+					medals.goldId = winnerId;
+					medals.silverId = loserId;
+				}
+
+				return;
+			}
+			else if(!tData.tournament.doubleConference && tData.tournament.type === 'SE') {
+				if(match.meta.matchType === 'finals') {
+					medals.goldId = winnerId;
+					medals.silverId = loserId;
+					return;
+				}
+				else if(match.meta.matchType === 'bronze') {
+					medals.bronzeId = winnerId;
+					return;
+				}
+			}
+			else if(!tData.tournament.doubleConference && tData.tournament.type === 'DE' && match.meta.matchType === 'bronze') {
+				medals.bronzeId = winnerId;
 				return;
 			}
 
@@ -211,16 +258,23 @@ app.factory('data', function() {
 							m = tData.tournament.conferences[1].matches[0][1];
 							clearMatch(m, t);
 						}
+
+						medals.goldId = null;
+						medals.silverId = null;
+						medals.bronzeId = null;
 					}
 				} else if (m !== null) {
 					clearMatch(m);
+					medals.goldId = winnerId;
+					medals.silverId = loserId;
 				}
 
 				if(finals2) {
+					medals.goldId = null;
+					medals.silverId = null;
 					return;
 				}
 			}
-
 
 
 			if ((tData.tournament.type === 'SE' && round === matches.length) ||
@@ -233,6 +287,11 @@ app.factory('data', function() {
 					if(finalRound.length > 1){
 						promoteToMatch(finalRound[1], loserId, t, b[1] === 'C1');
 					}
+				}
+
+				if(!tData.tournament.doubleConference && match.meta.matchType === 'finals2') {
+					medals.goldId = winnerId;
+					medals.silverId = loserId;
 				}
 
 				return;
@@ -285,13 +344,18 @@ app.factory('data', function() {
 			tData = tournamentData;
 		}
 	};
-})
+}])
 
 /**
  * Service for finding connecting matches.
  */
 .factory('connectorService', ['data',
 	function(data) {
+		var finals = {
+			C1: null,
+			C2: null,
+			C2_1: null
+		};
 		return {
 			findConnectingMatchId: function(match) {
 				var idParts = match.meta.matchId.split('-');
@@ -351,46 +415,25 @@ app.factory('data', function() {
 					return 'match-' + conference + '-' + round + '-' + match;
 				}
 
-				var result = {
-					C1: null,
-					C2: null,
-					C2_1: null
-				};
 				var targetId = getFinalMatchId('C1');
-				result.C1 = angular.element(document.getElementById(targetId)).children()[0];
+				finals.C1 = angular.element(document.getElementById(targetId)).children()[0];
 
 				if(data.isDoubleConference()){
 					targetId = getFinalMatchId('C2');
-					result.C2 = angular.element(document.getElementById(targetId)).children()[0];
+					finals.C2 = angular.element(document.getElementById(targetId)).children()[0];
 
 					if(data.getTournamentType() === 'DE') {
 						targetId = getFinalMatchId('C2', true);
-						result.C2_1 = angular.element(document.getElementById(targetId)).children()[0];
+						finals.C2_1 = angular.element(document.getElementById(targetId)).children()[0];
 					}
 				}
 
-				return result;
+				return finals;
 			}
 		};
 	}
 ])
 
-/*
- * Service that keeps track of a team to highlight through bracket.
- */
-.factory('highlight', function() {
-	var highlight = {
-		teamId: null
-	};
-	return {
-		mapHighlight: function() {
-			return highlight;
-		},
-		setHighlight: function(teamId) {
-			highlight.teamId = (teamId && teamId.length > 0) ? teamId : null;
-		}
-	};
-})
 
 /**
  * Provides bracket size properties. It creates temporary match element to get measurements from CSS, so that we don't need hard coded values.

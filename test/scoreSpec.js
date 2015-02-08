@@ -7,7 +7,8 @@ describe('Score control', function() {
 		getTournamentType: function() {
 			return 'SE';
 		},
-		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {}
+		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {},
+		getOptions: function() { return {}; }
 	}
 
 	beforeEach(module('ngBracket'));
