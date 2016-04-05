@@ -13,7 +13,7 @@
  * 			   2 = A full round 1 match promoted to round 2.
  *
  *
- * shuffle: Re-rolls teams randomly in given tournament data structure.
+ * shuffle: Re-rolls teams randomly in given tournament data structure. NOTE: Doesn't swap teams between conferences.
  *	params:
  *		data: Tournament data structure.
  **/
@@ -562,55 +562,69 @@ angular.module('ngBracket')
 				return confData;
 			},
 			shuffle: function(data) {
+				function setTeams(conference, round, teams) {
+					var j = 0, i = 0;
+
+					for (i; i < conference.matches[round].length; i++) {
+						if (conference.matches[round][i].meta.matchId.slice(-1) === 'L') {
+							break;
+						}
+
+						conference.matches[round][i].team1.id = teams[j].id;
+						conference.matches[round][i].team2.id = teams[j + 1].id;
+						j += 2;
+					}
+
+					if (i < teams.length - 1) {
+						round += 1;
+						for (i = 0; i < conference.matches[round].length; i++) {
+							if (j >= teams.length || conference.matches[round][i].meta.matchId.slice(-1) === 'L') {
+								break;
+							}
+
+							if (conference.matches[round][i].meta.matchType === 1) {
+								conference.matches[round][i].team1.id = teams[j].id;
+								j += 1;
+							} else if (conference.matches[round][i].meta.matchType === 2) {
+								conference.matches[round][i].team1.id = teams[j].id;
+								conference.matches[round][i].team2.id = teams[j + 1].id;
+								j += 2;
+							}
+						}
+					}
+				}
+
+				function shuffleTeams(teams) {
+					var currentIndex = teams.length, temporaryValue, randomIndex;
+					// While there remain elements to shuffle...
+					while (0 !== currentIndex) {
+						randomIndex = Math.floor(Math.random() * currentIndex);
+						currentIndex -= 1;
+						temporaryValue = teams[currentIndex];
+						teams[currentIndex] = teams[randomIndex];
+						teams[randomIndex] = temporaryValue;
+					}
+					return teams;
+				}
+
 				if (!data || !data.teams || !data.tournament || data.tournament.properties.status != 'Not started') {
 					return;
 				}
 
-				var tournament = data.tournament;
-				var currentIndex = data.teams.length,
-					temporaryValue, randomIndex;
 				var shuffled = data.teams.slice();
+				var conferenceIndex = 0, i = 0;
 
-				// While there remain elements to shuffle...
-				while (0 !== currentIndex) {
-					randomIndex = Math.floor(Math.random() * currentIndex);
-					currentIndex -= 1;
-					temporaryValue = shuffled[currentIndex];
-					shuffled[currentIndex] = shuffled[randomIndex];
-					shuffled[randomIndex] = temporaryValue;
-				}
-
-				var i, j = 0;
-				var round = tournament.type === 'DE' ? angular.module('ngBracket').findFirstRound(tournament.matches) : 0;
-
-				// Apply shuffled order to matches
-				for (i = 0; i < tournament.matches[round].length; i++) {
-					if (tournament.matches[round][i].meta.matchId.slice(-1) === 'L') {
-						break;
+				data.tournament.conferences.forEach(function(conference) {
+					if(conferenceIndex === 1) {
+						conferenceIndex += 1;
+						return; // skip finals 'conference'
 					}
 
-					tournament.matches[round][i].team1.id = shuffled[j].id;
-					tournament.matches[round][i].team2.id = shuffled[j + 1].id;
-					j += 2;
-				}
-
-				if (tournament.properties.unbalanced) {
-					round += 1;
-					for (i = 0; i < tournament.matches[round].length; i++) {
-						if (j >= shuffled.length || tournament.matches[round][i].meta.matchId.slice(-1) === 'L') {
-							break;
-						}
-
-						if (tournament.matches[round][i].meta.matchType === 1) {
-							tournament.matches[round][i].team1.id = shuffled[j].id;
-							j += 1;
-						} else if (tournament.matches[round][i].meta.matchType === 2) {
-							tournament.matches[round][i].team1.id = shuffled[j].id;
-							tournament.matches[round][i].team2.id = shuffled[j + 1].id;
-							j += 2;
-						}
-					}
-				}
+					var round = data.tournament.type === 'DE' ? angular.module('ngBracket').findFirstRound(conference.matches) : 0;
+					setTeams(conference, round, shuffleTeams(shuffled[i]));
+					conferenceIndex += 1;
+					i += 1;
+				});
 			}
 		};
 	});
