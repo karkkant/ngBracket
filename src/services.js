@@ -98,6 +98,70 @@ app.factory('highlight', function() {
  * Contains the tournament data.
  */
 .factory('data', ['highlight', function(highlight) {
+	function clearMatch(match, teamsToClear) {
+		if(!match) {
+			return;
+		}		
+		if(teamsToClear !== undefined) {
+			if(teamsToClear.indexOf(match.team1.id) > -1) {
+				match.team1.id = '';
+				match.team1.score = '';
+				match.team2.score = '';
+			}
+			if(teamsToClear.indexOf(match.team2.id) > -1) {
+				match.team2.id = '';
+				match.team2.score = '';
+				match.team1.score = '';						
+			}
+		}
+		else {
+			match.team1.id = '';
+			match.team2.id = '';
+			match.team1.score = '';
+			match.team2.score = '';
+		}
+	}
+
+	function findConnectingMatch(matchIndex, nextRound, isLoserMatch, isSemiFinal) {
+		var connectingMatchIndex = 0;
+		var match = null;
+		for (var i = 0; i < nextRound.length; i++) {
+			if (nextRound[i].meta.matchType != 2) {
+				if (isLoserMatch && nextRound[i].meta.matchId.slice(-1) !== 'L' && !isSemiFinal) {
+					continue;
+				}
+
+				connectingMatchIndex += (nextRound[i].meta.matchType == 1) ? 1 : 2;
+
+				if (connectingMatchIndex >= matchIndex) {
+					match = nextRound[i];
+					break;
+				}
+			}
+		}
+		return { connectingMatchIndex: connectingMatchIndex, match: match };
+	}
+
+	function findConnectingLoserMatch(matches, match) {
+		if(match.meta.loserMatchId) {
+			var targetRoundInd = parseInt(match.meta.loserMatchId.split('-')[2]) - 1;
+			var targetRound = matches[targetRoundInd];
+
+			return targetRound.filter(function(m) {
+				return m.meta.matchId === match.meta.loserMatchId; 
+			})[0];
+		}
+	}
+
+	function findMatchByType(matches, matchType, rNumber) {
+		for (var x = 0; x < matches[rNumber].length; x++) {
+			if (matches[rNumber][x].meta.matchType == matchType) {
+				return matches[rNumber][x];
+			}
+		}
+		return null;
+	}
+
 	var tData = null;
 	var firstRound = null;
 	return {
@@ -122,6 +186,98 @@ app.factory('highlight', function() {
 		getOptions: function() {
 			return tData.options;
 		},
+		resetTrack: function(match, oldTeams) {
+			function clearLoserBracket(matches, match, t) {
+				if(tData.tournament.type === 'DE' && !isLoserMatch) {
+						if(match.meta.loserMatchId) {
+							clearMatch(findConnectingLoserMatch(matches, match), t);							
+						}
+				}
+			}
+			function addTeamToClear(list, id) {
+				if(id.length > 0 && list.indexOf(id) < 0) {
+					list.push(id);
+				}
+			}
+
+			var b = match.meta.matchId.split('-');
+			var matches = b[1] == 'C2' ? tData.tournament.conferences[2].matches : tData.tournament.conferences[0].matches;
+			var round = parseInt(b[2]);
+			var matchIndex = parseInt(b[3]);
+			var isLoserMatch = b[b.length - 1] === 'L';
+			var isSemiFinal = round === (matches.length - 1);
+			var i, promotedLoser, rLength, finals2;
+			var connectingMatchIndex = 0;
+			var medals = highlight.getProperties();
+			var finalsRound = tData.tournament.doubleConference ? tData.tournament.conferences[1].matches : matches;
+			var t = [match.team1.id, match.team2.id]; // teams to seek and clear
+
+			if(oldTeams) {
+				t = t.concat(oldTeams);
+			}
+			
+			if(match.meta.matchType === 'bronze') {
+				medals.bronzeId = null;
+				return;
+			}
+			else if(match.meta.matchType === 'finals' || match.meta.matchType === 'finals2') {
+				medals.goldId = null;
+				medals.silverId = null;
+
+				if(match.meta.matchType === 'finals') {
+					clearMatch(findMatchByType(finalsRound, 'finals2', finalsRound.length - 1));
+				}
+
+				return;
+			}
+			else {
+				medals.goldId = null;
+				medals.silverId = null;
+				medals.bronzeId = null;
+			}
+
+			if(tData.tournament.type === 'DE' && !isLoserMatch) { 
+				clearLoserBracket(matches, match, t);
+				var loserMatch = findConnectingLoserMatch(matches, match);
+				if(loserMatch) {
+					this.resetTrack(loserMatch, t);
+				}
+			}
+
+			// Clear and exit if winner is unknown
+			var connectingMatch = round < matches.length ? findConnectingMatch(matchIndex, matches[round], isLoserMatch, isSemiFinal) : null;
+			if(connectingMatch && connectingMatch.match) {
+				clearMatch(connectingMatch.match, t);
+
+				if(tData.tournament.doubleConference) {
+					addTeamToClear(t, connectingMatch.match.team1.id);
+					addTeamToClear(t, connectingMatch.match.team2.id);
+				}
+
+				while(connectingMatch.match && round < matches.length - 1) {
+					addTeamToClear(t, connectingMatch.match.team1.id);
+					addTeamToClear(t, connectingMatch.match.team2.id);	
+
+					round += 1;
+					b = connectingMatch.match.meta.matchId.split('-');
+					isLoserMatch = b[b.length - 1] === 'L';
+					isSemiFinal = round === (matches.length - 1);
+					matchIndex = parseInt(b[3]);
+
+					connectingMatch = findConnectingMatch(matchIndex, matches[round], isLoserMatch, isSemiFinal);
+
+					if(connectingMatch.match) {
+						clearMatch(connectingMatch.match, t);
+					}
+
+					clearLoserBracket(matches, connectingMatch.match, t);
+				}
+			}
+
+			clearMatch(findMatchByType(finalsRound, 'bronze', finalsRound.length - 1), t);
+			clearMatch(findMatchByType(finalsRound, 'finals', finalsRound.length - 1), t);
+			clearMatch(findMatchByType(finalsRound, 'finals2', finalsRound.length - 1));
+		},
 		updateTournament: function(match, winnerId, loserId, oldValue, promoteLoser) {
 			function promoteToMatch(nextMatch, teamId, oldValues, first) {
 				if (nextMatch === null) {
@@ -142,15 +298,6 @@ app.factory('highlight', function() {
 				}
 			}
 
-			function findMatchByType(matchType, rNumber) {
-				for (var x = 0; x < matches[rNumber].length; x++) {
-					if (matches[rNumber][x].meta.matchType == matchType) {
-						return matches[rNumber][x];
-					}
-				}
-				return null;
-			}
-
 			function findTargetRound(parentRound) {
 				for (var x = 0; x < matches.length; x++) {
 					var l = matches[x].length;
@@ -160,25 +307,6 @@ app.factory('highlight', function() {
 					if (matches[x][l - 1].meta.team2Parent && matches[x][l - 1].meta.team2Parent.split('-')[2] == parentRound) {
 						return x;
 					}
-				}
-			}
-
-			function clearMatch(match, teamsToClear) {
-				if(teamsToClear !== undefined) {
-					if(teamsToClear.indexOf(match.team1.id) > -1) {
-						m.team1.id = '';
-						m.team1.score = '';
-					}
-					if(teamsToClear.indexOf(match.team2.id) > -1) {
-						m.team2.id = '';
-						m.team2.score = '';						
-					}
-				}
-				else {
-					m.team1.id = '';
-					m.team2.id = '';
-					m.team1.score = '';
-					m.team2.score = '';
 				}
 			}
 
@@ -240,7 +368,7 @@ app.factory('highlight', function() {
 					tData.tournament.properties.finals2C2 = finals2 = loserId != promotedLoser;
 				}
 
-				var m = findMatchByType('finals2', matches.length - 1);
+				var m = findMatchByType(matches, 'finals2', matches.length - 1);
 
 				if (loserId != promotedLoser) {
 					// Should never be null or it's an error...
@@ -276,7 +404,6 @@ app.factory('highlight', function() {
 				}
 			}
 
-
 			if ((tData.tournament.type === 'SE' && round === matches.length) ||
 				(tData.tournament.type === 'DE' && (match.meta.matchType === 'bronze' || match.meta.matchType === 'finals2' || finals2 === false))) {
 
@@ -302,41 +429,26 @@ app.factory('highlight', function() {
 				(tData.tournament.type === 'DE' && isLoserMatch && (isSemiFinal || round === (matches.length - 2))) ||
 				(tData.tournament.doubleConference && tData.tournament.type === 'DE') ) {
 				rLength = matches[matches.length - 1].length;
-				var bronzeMatch = findMatchByType('bronze', matches.length - 1);
+				var bronzeMatch = findMatchByType(matches, 'bronze', matches.length - 1);
 				promoteToMatch(bronzeMatch, loserId, t, matchIndex === 1);
 			}
 
-			var connectingMatchIndex = 0;
-			var nextRound = matches[round];
 			var loserBracketFinals = isLoserMatch && isSemiFinal;
+			var next = findConnectingMatch(matchIndex, matches[round], isLoserMatch, isSemiFinal);
+			var connectingMatchIndex = next.connectingMatchIndex;
 
-			for (i = 0; i < nextRound.length; i++) {
-				if (nextRound[i].meta.matchType != 2) {
-					if (isLoserMatch && nextRound[i].meta.matchId.slice(-1) !== 'L' && !isSemiFinal) {
-						continue;
-					}
-
-					connectingMatchIndex += (nextRound[i].meta.matchType == 1) ? 1 : 2;
-
-					if (connectingMatchIndex >= matchIndex) {
-						promoteToMatch(nextRound[i], winnerId, t, loserBracketFinals);
-						break;
-					}
-				}
+			if(next.match) {
+				promoteToMatch(next.match, winnerId, t, loserBracketFinals);
 			}
 
 			// Double elimination loser bracket
-			if (promoteLoser) {
-				var targetRoundInd = parseInt(match.meta.loserMatchId.split('-')[2]) - 1;
-				var targetRound = matches[targetRoundInd];
-				for (i = (targetRound.length - 1); i >= 0; i--) {
-					if (targetRound[i].meta.team1Parent === match.meta.matchId) {
-						targetRound[i].team1.id = loserId;
-						break;
-					} else if (targetRound[i].meta.team2Parent === match.meta.matchId) {
-						targetRound[i].team2.id = loserId;
-						break;
-					}
+			if (promoteLoser) {				
+				var targetMatch = findConnectingLoserMatch(matches, match);
+
+				if (targetMatch.meta.team1Parent === match.meta.matchId) {
+					targetMatch.team1.id = loserId;
+				} else if (targetMatch.meta.team2Parent === match.meta.matchId) {
+					targetMatch.team2.id = loserId;
 				}
 			}
 		},

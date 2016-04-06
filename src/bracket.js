@@ -39,6 +39,7 @@ app.directive('ngbracket', ['data', 'layoutService',
         restrict: 'A',
         link: function(scope, element, attr) {
             if (element) {
+                scope.$parent.tmpOldScoreValue = scope.$eval(attr.ngModel);
                 element[0].focus();
                 element[0].select();
             }
@@ -353,10 +354,15 @@ app.directive('ngbracket', ['data', 'layoutService',
                     }
                 };
                 scope.calculateResults = function(oldValue) {
-                    if (typeof(scope.match.team1.score) === 'undefined' || scope.match.team1.score === "" || typeof(scope.match.team2.score) === 'undefined' ||
-                        scope.match.team2.score === "" || scope.match.team1.score === scope.match.team2.score) {
+                    if (isNaN(parseFloat(scope.match.team1.score)) || isNaN(parseFloat(scope.match.team2.score)) ||
+                        scope.match.team1.score === scope.match.team2.score) {
                         scope.results.winner = "";
                         scope.results.loser = "";
+
+                        if(oldValue === null && !isNaN(parseFloat(scope.tmpOldScoreValue))) {
+                            data.resetTrack(scope.match);
+                        }
+
                         return;
                     }
 
@@ -386,14 +392,36 @@ app.directive('ngbracket', ['data', 'layoutService',
                     scope.status = 'uneditable';
                     scope.calculateResults(null);
                 };
+                var onTeamChanged = function(newValue, oldValue) {
+                    if (newValue) {
+                        scope.calculateResults(oldValue);
+                    }
+                    else if(oldValue && scope.team.id) {
+                        data.updateTournament(scope.match, null, null, scope.team.id, false);
+                    }
+                };
                 var w1 = scope.$watch('match.team1.id', function(newValue, oldValue) {
                     if (newValue) {
                         scope.calculateResults(oldValue);
+                    }
+                    else if(oldValue && scope.match.team1.id) {
+                        data.resetTrack(scope.match);
+                    }
+                    else {
+                        scope.results.winner = undefined;
+                        scope.results.loser = undefined;
                     }
                 }, true);
                 var w2 = scope.$watch('match.team2.id', function(newValue, oldValue) {
                     if (newValue) {
                         scope.calculateResults(oldValue);
+                    }
+                    else if(oldValue && scope.match.team2.id) {
+                        data.resetTrack(scope.match);
+                    }
+                    else {
+                        scope.results.winner = undefined;
+                        scope.results.loser = undefined;
                     }
                 }, true);
 
