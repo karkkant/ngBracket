@@ -376,21 +376,6 @@ app.factory('highlight', function() {
 						m.team1.id = match.team1.id;
 						m.team2.id = match.team2.id;
 					}
-
-					if(tData.tournament.doubleConference) {
-						// Clear old values from finals and bronze match
-						m = tData.tournament.conferences[1].matches[0][0];
-						clearMatch(m, t);
-
-						if(tData.tournament.conferences[1].matches[0].length > 1) {
-							m = tData.tournament.conferences[1].matches[0][1];
-							clearMatch(m, t);
-						}
-
-						medals.goldId = null;
-						medals.silverId = null;
-						medals.bronzeId = null;
-					}
 				} else if (m !== null) {
 					clearMatch(m);
 					medals.goldId = winnerId;
@@ -426,8 +411,8 @@ app.factory('highlight', function() {
 
 			// Push losers to bronze match if there is one
 			if ((tData.tournament.type === 'SE' && isSemiFinal && matches[matches.length - 1].length > 1) ||
-				(tData.tournament.type === 'DE' && isLoserMatch && (isSemiFinal || round === (matches.length - 2))) ||
-				(tData.tournament.doubleConference && tData.tournament.type === 'DE') ) {
+				(tData.tournament.type === 'DE' && isLoserMatch && (isSemiFinal || round === (matches.length - 2)))) {
+
 				rLength = matches[matches.length - 1].length;
 				var bronzeMatch = findMatchByType(matches, 'bronze', matches.length - 1);
 				promoteToMatch(bronzeMatch, loserId, t, matchIndex === 1);
