@@ -365,7 +365,7 @@ angular.module('ngBracket')
 											if (tournamentData.matches[i][j].meta.matchType === 1) {
 												loserBracket[i][j].meta.matchType = 2;
 												loserBracket[i][j].meta.team1Parent = tournamentData.matches[0][fr].meta.matchId; // Match from first round
-												loserBracket[i][j].meta.team2Parent = 'match-' + (i + 1 + shift) + '-' + (rLength - j); // Inverted match from 2nd round
+												loserBracket[i][j].meta.team2Parent = 'match-' + conference + '-' + (i + 1 + shift) + '-' + (rLength - j); // Inverted match from 2nd round
 												tournamentData.matches[0][fr].meta.loserMatchId = loserBracket[i][j].meta.matchId;
 												tournamentData.matches[i][rLength - j - 1].meta.loserMatchId = loserBracket[i][j].meta.matchId;
 												fr += 1;
@@ -373,7 +373,7 @@ angular.module('ngBracket')
 												loserBracket[i][j].meta.matchType = 1;
 												loserBracket[0][frInd].meta.team1Parent = tournamentData.matches[0][fr].meta.matchId;
 												loserBracket[0][frInd].meta.team2Parent = tournamentData.matches[0][fr + 1].meta.matchId;
-												loserBracket[i][j].meta.team1Parent = 'match-' + (i + 1 + shift) + '-' + (rLength - j);
+												loserBracket[i][j].meta.team1Parent = 'match-' + conference + '-' + (i + 1 + shift) + '-' + (rLength - j);
 												tournamentData.matches[0][fr].meta.loserMatchId = loserBracket[0][frInd].meta.matchId;
 												tournamentData.matches[0][fr + 1].meta.loserMatchId = loserBracket[0][frInd].meta.matchId;
 												tournamentData.matches[i][rLength - j - 1].meta.loserMatchId = loserBracket[i][j].meta.matchId;
